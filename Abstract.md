@@ -12,6 +12,12 @@
 - Email : [karupal2002@gmail.com](mailto:karupal2002@gmail.com)
 - GitHub : https://github.com/NavinShrinivas 
 
+#### Member 2
+- Name : Mohamed Ayaan
+- SRN : PES2UG20CS200
+- Email : [ayaan35813@gmail.com](mailto:ayaan35813@gmail.com)
+- GitHub : https://github.com/Mohamed-Ayaan358
+
 <!--Fill your details in the same format -->
 
 ## 1 | Project description
