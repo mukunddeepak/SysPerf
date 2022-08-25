@@ -10,7 +10,13 @@
 - Name : P K Navin Shrinivas
 - SRN : PES2UG20CS237
 - Email : [karupal2002@gmail.com](mailto:karupal2002@gmail.com)
-- GitHub : https://github.com/NavinShrinivas 
+- GitHub : https://github.com/NavinShrinivas
+
+#### Member 2
+- Name: Mukund Deepak
+- SRN: PES2UG20CS206
+- Email: [2255mukund@gmail.com](mailto:2255mukund@gmail.com)
+- GitHub : https://github.com/mukunddeepak
 
 <!--Fill your details in the same format -->
 
