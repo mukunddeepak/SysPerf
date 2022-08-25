@@ -24,7 +24,7 @@
 SysPerf is a new proposed project aiming to achieve impressive monitoring system information in few short sprints. SysPerf is more of a hobby project and complies with the open source nature of Linux. With SysPerf all developers and users alike can have a single go to tool for monitoring their system performance. Some of the initial functional requirements planned are : 
 - A friendly TUI interface.
 - Providing the tool through all famous package managers.
-- Seeing memory, CPU and disk usage.
+- Seeing memory, CPU and disk usage. Seeing core specific usage.
 - List all processes with specific usage.
 
 ## 2 | The plan
@@ -35,6 +35,7 @@ SysPerf is a new proposed project aiming to achieve impressive monitoring system
 - The remaining weeks of sprint 1 is spent in creating the various modules that communicate with the kernel and provide an interface for the TUI to display.
 - Each person in the team takes up a moduke to implement, we will have the regualr scrum meetings every 3 days to make sure we have a consistent intetface and progress goes on as usual.
 - As this is a systems based _tool_ we will not have any databse, but other functional requirements are as follows :
+    - Single threaded application
     - TUI, with stat testing
     - Unit testing is being made the standard.
     - Buferring stats for upto 30 seconds
