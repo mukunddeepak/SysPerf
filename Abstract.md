@@ -18,7 +18,7 @@
 - Email: [2255mukund@gmail.com](mailto:2255mukund@gmail.com)
 - GitHub : https://github.com/mukunddeepak
 
-#### Member 2
+#### Member 3
 - Name : Mohamed Ayaan
 - SRN : PES2UG20CS200
 - Email : [ayaan35813@gmail.com](mailto:ayaan35813@gmail.com)
