@@ -10,7 +10,13 @@
 - Name : P K Navin Shrinivas
 - SRN : PES2UG20CS237
 - Email : [karupal2002@gmail.com](mailto:karupal2002@gmail.com)
-- GitHub : https://github.com/NavinShrinivas 
+- GitHub : https://github.com/NavinShrinivas
+
+#### Member 2
+- Name: Mukund Deepak
+- SRN: PES2UG20CS206
+- Email: [2255mukund@gmail.com](mailto:2255mukund@gmail.com)
+- GitHub : https://github.com/mukunddeepak
 
 #### Member 2
 - Name : Mohamed Ayaan
@@ -28,3 +34,18 @@ SysPerf is a new proposed project aiming to achieve impressive monitoring system
 - List all processes with specific usage.
 
 ## 2 | The plan
+
+- We plan to finish this project in 2 short sprints (8 weeks).
+- This project is split into 2 phase (modules), this fits well into our 2 sprints and helps splitting work amongst us.
+- The first sprints start with spending a short while on requirements, research and tool setup. 
+- The remaining weeks of sprint 1 is spent in creating the various modules that communicate with the kernel and provide an interface for the TUI to display.
+- Each person in the team takes up a moduke to implement, we will have the regualr scrum meetings every 3 days to make sure we have a consistent intetface and progress goes on as usual.
+- As this is a systems based _tool_ we will not have any databse, but other functional requirements are as follows :
+    - TUI, with stat testing
+    - Unit testing is being made the standard.
+    - Buferring stats for upto 30 seconds
+- In sprint 2, we will start working on TUI. Here 1 of the team mates manages the structres of the TUI and the rest connect the previously mentioned interface to the TUI structures.
+- As for qualitative requirements, we have the follwing in mind : 
+    - No sudo perms to run the frontend 
+    - Being very responsive 
+    - Neat TUI with minimal configurations
