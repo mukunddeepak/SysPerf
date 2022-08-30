@@ -27,7 +27,7 @@
 #### Member 4
 - Name : Nandan H
 - SRN : PES2UG20CS214
-- Email : theuniverseisflat101@gmail.com
+- Email : [theuniverseisflat101@gmail.com](mailto:theuniverseisflat101@gmail.com)
 - Github : https://github.com/MonkeyDGod619
 
 <!--Fill your details in the same format -->
