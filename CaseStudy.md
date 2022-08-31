@@ -149,4 +149,5 @@
  3. Final Review and changes [Score : 10]
  4. Production release [Score : 10]
 
-
+## Burndown Chart
+![burndown_chart](./burndown.png)
