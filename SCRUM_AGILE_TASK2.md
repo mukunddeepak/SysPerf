@@ -1,5 +1,20 @@
 # Asginment | Task 2: Agile and Scrum
 
+## Team Members : 
+
+#### Member 1
+- Name : P K Navin Shrinivas
+- SRN : PES2UG20CS237
+#### Member 2
+- Name: Mukund Deepak
+- SRN: PES2UG20CS206
+#### Member 3
+- Name : Mohamed Ayaan
+- SRN : PES2UG20CS200
+#### Member 4
+- Name : Nandan H
+- SRN : PES2UG20CS214
+
 ## Requirements 
 
 
