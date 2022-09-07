@@ -1,4 +1,5 @@
 use std::{fs::File, io::prelude::*, io::BufReader, thread, time};
+
 struct CpuUsage {
     cpu_id: String,
     user_usage: u32,
@@ -11,7 +12,8 @@ struct CpuUsage {
     steal_usage: u32,
     guest_usage: u32,
     guest_nice_usage: u32,
-}
+} 
+//Struct creation relative to value generated from the command so be careful, otherwise you could lose on some data.
 
 impl CpuUsage {
     fn new(line_vector: Vec<&str>) -> CpuUsage {
@@ -30,6 +32,8 @@ impl CpuUsage {
             guest_nice_usage: line_vector[10].trim().parse().unwrap(),
         }
     }
+     //We are essentially implementing line vector generated from the command, onto the CpuUsage structure.
+
     fn sum_of_all_work(self: &Self) -> u32 {
         return self.user_usage
             + self.nice_usage
@@ -41,6 +45,8 @@ impl CpuUsage {
             + self.guest_usage
             + self.guest_nice_usage;
     }
+    //We are using self to obtain the value from the CpuUsage structure as it is being implemented here.
+
 }
 
 fn calculate_recent_usage(timed_storage_buffer: &Vec<CpuUsage>) -> f32 {
