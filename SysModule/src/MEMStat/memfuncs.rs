@@ -103,6 +103,8 @@ impl MemUsage{
 
 pub async fn main_mem_stat_handler(){
     let mut iteration=0;
+    let mut timed_storage_buffer_1: Vec<MemUsage> = Vec::new();
+
     loop{
     println!("Iteration {} \n \n",iteration);
     let procmeminfo_fd = File::open("/proc/meminfo").unwrap();
@@ -120,7 +122,12 @@ pub async fn main_mem_stat_handler(){
         temp_vec.push(line_val);
     }
     let new_mem_usage = MemUsage::new(temp_vec);
-    println!("{:?}\n",new_mem_usage);
+    timed_storage_buffer_1.push(new_mem_usage);
+    if timed_storage_buffer_1.len() == 1 {
+            continue;
+        }
+
+    println!("{:?}\n",timed_storage_buffer_1.last().unwrap());
     iteration+=1;
     
     thread::sleep(time::Duration::from_millis(1000));
