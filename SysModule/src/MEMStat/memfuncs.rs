@@ -105,24 +105,19 @@ pub async fn main_mem_stat_handler(){
     let mut iteration=0;
     loop{
     println!("Iteration {} \n \n",iteration);
-    let mut procmeminfo_fd = File::open("/proc/meminfo").unwrap();
+    let procmeminfo_fd = File::open("/proc/meminfo").unwrap();
     let mut buff_reader = BufReader::new(&procmeminfo_fd);
     let mut meminfo = String::new();
     let _ =buff_reader.read_to_string(&mut meminfo);
-    let mut lines=meminfo.split("\n");
-    let mut i=0;
+    let lines : Vec<&str> =meminfo.split("\n").into_iter().collect();
     let  mut temp_vec : Vec<u32> = Vec::new();
     //Can just label 0-4 itself instead of loop
-    for line in lines {
-        if(i!=5){
-        let mut pos1=line.chars().position(|c| c == ':').unwrap()+1;
-        let mut pos2=line.chars().position(|c| c == 'k').unwrap();
-        let mut val_label=line.get(0..pos1-1).unwrap();
-        i+=1;
-        let mut finalvalue=line.get(pos1..pos2).unwrap();  
+    for i in 0..5 {
+        let pos1=lines[i].chars().position(|c| c == ':').unwrap()+1;
+        let pos2=lines[i].chars().position(|c| c == 'k').unwrap();
+        let finalvalue=lines[i].get(pos1..pos2).unwrap();  
         let line_val = finalvalue.trim().parse::<u32>().unwrap();
         temp_vec.push(line_val);
-        }
     }
     let new_mem_usage = MemUsage::new(temp_vec);
     println!("{:?}\n",new_mem_usage);

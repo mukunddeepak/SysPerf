@@ -51,10 +51,22 @@ impl CpuUsage {
 
 fn calculate_recent_usage(timed_storage_buffer: &Vec<CpuUsage>) -> f32 {
     //https://www.linuxhowtos.org/System/procstat.htm , /proc/stat is total usage from boot
-    let record1 = timed_storage_buffer.last().unwrap();
-    let record2 = timed_storage_buffer
-        .get(timed_storage_buffer.len() - 2)
-        .unwrap();
+    let record1 = match timed_storage_buffer.last(){
+        Some(x) => { x }
+        None => { 
+            println!("Please make sure you are using a lunux system!");
+            panic!("Error : seems like your buffer is empty! Error point[calculate_recent_usagege]");
+        }
+    };
+    let record2 = match timed_storage_buffer.get(timed_storage_buffer.len() - 2){
+        Some(x) => { x }
+        None => {
+            //Not an error
+            println!("Initiliziing");
+            return 0.0;
+        }
+
+    };
     let record1_work = record1.sum_of_all_work() as f32;
     let record2_work = record2.sum_of_all_work() as f32;
     let record1_idle = record1.idle_usage as f32;
@@ -69,7 +81,12 @@ pub async fn main_cpu_stat_handler(){
      let mut timed_storage_buffer: Vec<CpuUsage> = Vec::new();
     loop {
         //Reading entire file from system
-        let procstat_fd = File::open("/proc/stat").unwrap();
+        let procstat_fd = match File::open("/proc/stat"){
+            Ok(x) => {x},
+            Err(_) => {
+                panic!("Make sure you are using a linux system! Error point[reading stat file]");
+            }
+        };
         let mut buff_reader = BufReader::new(&procstat_fd);
         let mut current_cpu_stat = String::new();
         let _ = buff_reader.read_to_string(&mut current_cpu_stat);
