@@ -12,7 +12,7 @@ use std::{fs::File, io::prelude::*, io::BufReader,io::Read, thread, time};
 //         }
 //     };
 // }
-
+#[derive(Debug)]
 struct MemUsage {
     Mem_Total:u32,
     Mem_Free:u32,
@@ -54,13 +54,13 @@ struct MemUsage {
 }
 
 impl MemUsage{
-    fn new(line_vector: Vec<&str>) -> MemUsage{
+    fn new(line_vector: Vec<u32>) -> MemUsage{
         MemUsage{
-            Mem_Total:line_vector[0].trim().parse().unwrap(),
-            Mem_Free:line_vector[1].trim().parse().unwrap(),
-            Mem_Available:line_vector[2].trim().parse().unwrap(),
-            Mem_Buffer:line_vector[3].trim().parse().unwrap(),
-            Mem_Cached:line_vector[4].trim().parse().unwrap(),
+            Mem_Total:line_vector[0],
+            Mem_Free:line_vector[1],
+            Mem_Available:line_vector[2],
+            Mem_Buffer:line_vector[3],
+            Mem_Cached:line_vector[4],
             // Mem_SwapCached:line_vector[5].trim().parse().unwrap(),
             // Mem_Active:line_vector[6].trim().parse().unwrap(),
             // Mem_Inactive:line_vector[7].trim().parse().unwrap(),
@@ -111,6 +111,7 @@ pub fn main_mem_stat_handler(){
     let _ =buff_reader.read_to_string(&mut meminfo);
     let mut lines=meminfo.split("\n");
     let mut i=0;
+    let  mut temp_vec : Vec<u32> = Vec::new();
     //Can just label 0-4 itself instead of loop
     for line in lines {
         if(i!=5){
@@ -119,12 +120,14 @@ pub fn main_mem_stat_handler(){
         let mut val_label=line.get(0..pos1-1).unwrap();
         i+=1;
         let mut finalvalue=line.get(pos1..pos2).unwrap();  
-       
-        println!("{} : {}\n",val_label,finalvalue.trim().parse::<i32>().unwrap());
+        let line_val = finalvalue.trim().parse::<u32>().unwrap();
+        temp_vec.push(line_val);
         }
     }
+    let new_mem_usage = MemUsage::new(temp_vec);
+    println!("{:?}\n",new_mem_usage);
     iteration+=1;
     
-     thread::sleep(time::Duration::from_millis(1000));
+    thread::sleep(time::Duration::from_millis(1000));
 }
 }
