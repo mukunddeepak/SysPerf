@@ -65,7 +65,7 @@ fn calculate_recent_usage(timed_storage_buffer: &Vec<CpuUsage>) -> f32 {
 }
 
 
-pub fn main_cpu_stat_handler(){
+pub async fn main_cpu_stat_handler(){
      let mut timed_storage_buffer: Vec<CpuUsage> = Vec::new();
     loop {
         //Reading entire file from system

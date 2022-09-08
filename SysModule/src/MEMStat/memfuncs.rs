@@ -101,7 +101,7 @@ impl MemUsage{
 
 
 
-pub fn main_mem_stat_handler(){
+pub async fn main_mem_stat_handler(){
     let mut iteration=0;
     loop{
     println!("Iteration {} \n \n",iteration);
