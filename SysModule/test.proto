@@ -1,0 +1,19 @@
+syntax = "proto3"
+
+package testing
+
+service TestService{
+    rpc SetVar(TestRequest) returns (TestResponse) {}
+}
+
+message TestRequest{
+    int32 test_number = 1
+} 
+
+message TestResponse{
+    int32 ret_test_number = 1
+}
+
+
+
+

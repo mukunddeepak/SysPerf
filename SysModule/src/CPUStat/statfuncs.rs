@@ -1,4 +1,4 @@
-use std::{fs::File, io::prelude::*, io::BufReader, thread, time};
+use std::{fs::File, io::prelude::*, io::BufReader, thread, time, sync::mpsc::channel};
 
 struct CpuUsage {
     cpu_id: String,
@@ -77,7 +77,7 @@ fn calculate_recent_usage(timed_storage_buffer: &Vec<CpuUsage>) -> f32 {
 }
 
 
-pub async fn main_cpu_stat_handler(){
+pub async fn main_cpu_stat_handler(transmitter : std::sync::mpsc::Sender<f32>){
      let mut timed_storage_buffer: Vec<CpuUsage> = Vec::new();
     loop {
         //Reading entire file from system
@@ -109,11 +109,14 @@ pub async fn main_cpu_stat_handler(){
             continue;
         }
 
-        println!(
-            "{} Usage : {}",
-            timed_storage_buffer.last().unwrap().cpu_id,
-            calculate_recent_usage(&timed_storage_buffer)
-        );
+        /*
+         *println!(
+         *    "{} Usage : {}",
+         *    timed_storage_buffer.last().unwrap().cpu_id,
+         *    calculate_recent_usage(&timed_storage_buffer)
+         *);
+         */
+        transmitter.send(calculate_recent_usage(&timed_storage_buffer)).unwrap();
 
         thread::sleep(time::Duration::from_millis(1000));
     }
