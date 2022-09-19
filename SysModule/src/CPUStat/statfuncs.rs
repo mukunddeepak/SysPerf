@@ -1,6 +1,8 @@
 use std::{fs::File, io::prelude::*, io::BufReader, thread, time, sync::mpsc::channel};
+use crate::ChannelType;
 
-struct CpuUsage {
+#[derive(Debug)]
+pub struct CpuUsage {
     cpu_id: String,
     user_usage: u32,
     nice_usage: u32,
@@ -77,8 +79,7 @@ fn calculate_recent_usage(timed_storage_buffer: &Vec<CpuUsage>) -> f32 {
 }
 
 
-pub async fn main_cpu_stat_handler(transmitter : std::sync::mpsc::Sender<f32>){
-     let mut timed_storage_buffer: Vec<CpuUsage> = Vec::new();
+pub async fn main_cpu_stat_handler(transmitter : std::sync::mpsc::Sender<ChannelType>){
     loop {
         //Reading entire file from system
         let procstat_fd = match File::open("/proc/stat"){
@@ -103,20 +104,7 @@ pub async fn main_cpu_stat_handler(transmitter : std::sync::mpsc::Sender<f32>){
         }
         //Total cpu usage from boot:
         let current_usage = CpuUsage::new(main_cpu_info_vector_sanitized);
-        timed_storage_buffer.push(current_usage);
-
-        if timed_storage_buffer.len() == 1 {
-            continue;
-        }
-
-        /*
-         *println!(
-         *    "{} Usage : {}",
-         *    timed_storage_buffer.last().unwrap().cpu_id,
-         *    calculate_recent_usage(&timed_storage_buffer)
-         *);
-         */
-        transmitter.send(calculate_recent_usage(&timed_storage_buffer)).unwrap();
+        transmitter.send(ChannelType::CpuData(current_usage)).unwrap();
 
         thread::sleep(time::Duration::from_millis(1000));
     }

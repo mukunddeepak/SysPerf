@@ -1,4 +1,5 @@
 use std::{fs::File, io::prelude::*, io::BufReader,io::Read, thread, time};
+use crate::ChannelType;
 
 // macro_rules! skip_fail {
 //     ($res:expr) => {
@@ -13,7 +14,7 @@ use std::{fs::File, io::prelude::*, io::BufReader,io::Read, thread, time};
 //     };
 // }
 #[derive(Debug)]
-struct MemUsage {
+pub struct MemUsage {
     Mem_Total:u32,
     Mem_Free:u32,
     Mem_Available:u32,
@@ -101,35 +102,26 @@ impl MemUsage{
 
 
 
-pub async fn main_mem_stat_handler(){
-    let mut iteration=0;
-    let mut timed_storage_buffer_1: Vec<MemUsage> = Vec::new();
-
+pub async fn main_mem_stat_handler(transmitter : std::sync::mpsc::Sender<ChannelType>){
     loop{
-    println!("Iteration {} \n \n",iteration);
-    let procmeminfo_fd = File::open("/proc/meminfo").unwrap();
-    let mut buff_reader = BufReader::new(&procmeminfo_fd);
-    let mut meminfo = String::new();
-    let _ =buff_reader.read_to_string(&mut meminfo);
-    let lines : Vec<&str> =meminfo.split("\n").into_iter().collect();
-    let  mut temp_vec : Vec<u32> = Vec::new();
-    //Can just label 0-4 itself instead of loop
-    for i in 0..5 {
-        let pos1=lines[i].chars().position(|c| c == ':').unwrap()+1;
-        let pos2=lines[i].chars().position(|c| c == 'k').unwrap();
-        let finalvalue=lines[i].get(pos1..pos2).unwrap();  
-        let line_val = finalvalue.trim().parse::<u32>().unwrap();
-        temp_vec.push(line_val);
-    }
-    let new_mem_usage = MemUsage::new(temp_vec);
-    timed_storage_buffer_1.push(new_mem_usage);
-    if timed_storage_buffer_1.len() == 1 {
-            continue;
+        let procmeminfo_fd = File::open("/proc/meminfo").unwrap();
+        let mut buff_reader = BufReader::new(&procmeminfo_fd);
+        let mut meminfo = String::new();
+        let _ =buff_reader.read_to_string(&mut meminfo);
+        let lines : Vec<&str> =meminfo.split("\n").into_iter().collect();
+        let  mut temp_vec : Vec<u32> = Vec::new();
+        //Can just label 0-4 itself instead of loop
+        for i in 0..5 {
+            let pos1=lines[i].chars().position(|c| c == ':').unwrap()+1;
+            let pos2=lines[i].chars().position(|c| c == 'k').unwrap();
+            let finalvalue=lines[i].get(pos1..pos2).unwrap();  
+            let line_val = finalvalue.trim().parse::<u32>().unwrap();
+            temp_vec.push(line_val);
         }
+        let new_mem_usage = MemUsage::new(temp_vec);
+        transmitter.send(ChannelType::MemData(new_mem_usage)).unwrap();
 
-    println!("{:?}\n",timed_storage_buffer_1.last().unwrap());
-    iteration+=1;
-    
-    thread::sleep(time::Duration::from_millis(1000));
-}
+
+        thread::sleep(time::Duration::from_millis(1000));
+    }
 }
