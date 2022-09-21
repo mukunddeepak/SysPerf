@@ -11,4 +11,4 @@ tonic = "0.5"
 prost = "0.8"
 
 [build-dependencies]
-tonic-build = "0.5"
+prost-build = { version = "0.11.1" }

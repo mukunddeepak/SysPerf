@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package data.datastruct;
+
+message CpuUsage {
+    int32 cpu_id = 1;
+    int32 cpu_usage = 2;
+}
+message MemUsage{
+    int32 mem_usage = 1;
+}
+
+
+
+// Automatic serde protobuf for transferring data between TUI and backend
+message Data {
+
+    enum Type {
+        MEM = 0;
+        CPU = 1;
+    }
+    Type type = 1;
+    oneof DataContent{
+        CpuUsage cpu_data = 2;
+        MemUsage mem_data = 3;
+    }
+}
