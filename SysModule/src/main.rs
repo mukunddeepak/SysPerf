@@ -61,9 +61,4 @@ async fn main() -> Result<()> {
     let buffer_struct = Data::new();
     println!("{:?}", buffer_struct);
     Ok(())
-
-        /*  loop {
-            println!("{:?}", comm_rx.recv().unwrap());
-            } */
-
 }
