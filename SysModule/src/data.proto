@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package data.datastruct;
+package data.protobuf;
 
 message CpuUsage {
-    int32 cpu_id = 1;
-    float cpu_usage = 2;
+    string cpu_id = 1;
+    int32 cpu_usage = 2;
 }
 message MemUsage{
     float mem_usage = 1;
@@ -18,30 +18,16 @@ message InitData{
 message EmptyReq{
 
 }
-message MemUsageRequet{
+message MemUsageRequest{
     float prev_mem_usage = 1;
 }
 message CpuUsageRequest{
     int32 needed_cpu_usage = 1;
 }
 
-// Automatic serde protobuf for transferring data between TUI and backend
-message Data {
-
-
-    enum Type {
-        MEM = 0;
-        CPU = 1;
-    }
-    Type type = 1;
-    oneof DataContent{
-        CpuUsage cpu_data = 2;
-        MemUsage mem_data = 3;
-    }
-}
 
 service FetchData{
-    rpc FetchCpuUsage (CpuUsageRequest) returns (Data);
-    rpc FetchMemUsage (MemUsageRequet) returns (Data);
-    rpc InitDetails (EmptyReq) returns (InitData);
+    rpc FetchCpuUsage (CpuUsageRequest) returns (CpuUsage);
+    /* rpc FetchMemUsage (MemUsageRequest) returns (Data); */
+    /* rpc InitDetails (EmptyReq) returns (InitData); */
 }

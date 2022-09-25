@@ -2,63 +2,69 @@
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 #![allow(unused)]
+#![feature(get_mut_unchecked)]
 
-//Module system : 
+//Local module system :
 mod CPUStat;
-mod MEMStat;
+// mod MEMStat;
 
 //std imports
-use std::sync::mpsc;
 use std::io::Result;
+use std::sync::mpsc;
+use std::sync::Arc;
 
-// Protobuf side constructs
-pub mod items{
-    include!(concat!(env!("OUT_DIR"), "/data.datastruct.rs"));
+//Cargo crate modules :
+use tonic::transport::Server;
+
+// -------------Protobuf side constructs and GRPC's----------
+pub mod protobuf {
+    tonic::include_proto!("data.protobuf");
 }
 
-use items::MemUsage as MemUsage_protobuf;
-use items::CpuUsage as CpuUsage_protobuf;
-use items::Data;
-use items::data::DataContent;
-use items::data::Type;
+use protobuf::CpuUsage as CpuUsageProtobuf;
+use protobuf::{CpuUsageRequest, MemUsageRequest};
+//Server trait
+use protobuf::fetch_data_server::{FetchData, FetchDataServer};
 
-impl Data{
-    fn new()-> Data{
-        Data{
-            r#type : Type::Cpu as i32, //Protobuf implements conversion to i32 traits
-            data_content : Some(DataContent::CpuData(CpuUsage_protobuf{
-                cpu_id : 0,
-                cpu_usage : 23
-            }))
-        }
+#[tonic::async_trait]
+impl FetchData for CpuUsage {
+    async fn fetch_cpu_usage(
+        &self,
+        req: tonic::Request<CpuUsageRequest>,
+        ) -> std::result::Result<tonic::Response<CpuUsageProtobuf>, tonic::Status> {
+        return Ok(tonic::Response::new(self.convert_to_protobuf()));
     }
 }
 
 //Rust side structs
 use CPUStat::statfuncs::CpuUsage;
-use MEMStat::memfuncs::MemUsage;
-
-#[derive(Debug)]
-pub enum ChannelType {
-    MemData(MemUsage),
-    CpuData(CpuUsage),
-}
+// use MEMStat::memfuncs::MemUsage;
 
 #[tokio::main]
 async fn main() -> Result<()> {
     //Do note, tokio uses single OS thread for all spwaned threads
     //Non Blocking spawns :
-    let (comm_tx, comm_rx) = mpsc::channel();
-    let cpu_tx = comm_tx.clone();
-    let mem_tx = comm_tx.clone();
-    tokio::spawn(async {
-        MEMStat::memfuncs::main_mem_stat_handler(mem_tx).await;
-    });
 
-    tokio::spawn(async {
-        CPUStat::statfuncs::main_cpu_stat_handler(cpu_tx).await;
+    /*     tokio::spawn(async {
+           MEMStat::memfuncs::main_mem_stat_handler(mem_tx).await;
+           });
+           */
+    let mut statefull_cpu_usage = CpuUsage::new();
+    let mut arc_statefull_cpu_usage = Arc::new(statefull_cpu_usage);
+    let clone = Arc::clone(&arc_statefull_cpu_usage);
+
+
+    tokio::spawn(async move{
+        let addr = "[::1]:5001".parse().unwrap();
+        println!("Listening on port 5001");
+        Server::builder()
+            .add_service(FetchDataServer::from_arc(clone))
+            .serve(addr)
+            .await;
     });
-    let buffer_struct = Data::new();
-    println!("{:?}", buffer_struct);
+    unsafe{
+        CPUStat::statfuncs::main_cpu_stat_handler(&mut Arc::get_mut_unchecked(&mut arc_statefull_cpu_usage));
+    }
+
     Ok(())
 }
