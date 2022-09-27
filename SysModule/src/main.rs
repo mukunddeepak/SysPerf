@@ -22,6 +22,7 @@ pub mod protobuf {
 }
 
 use protobuf::CpuUsage as CpuUsageProtobuf;
+// use protobuf::MemUsage as MemUsageProtobuf;
 use protobuf::{CpuUsageRequest, MemUsageRequest};
 //Server trait
 use protobuf::fetch_data_server::{FetchData, FetchDataServer};
@@ -65,6 +66,7 @@ async fn main() -> Result<()> {
     unsafe{
         CPUStat::statfuncs::main_cpu_stat_handler(&mut Arc::get_mut_unchecked(&mut arc_statefull_cpu_usage));
     }
+
 
     Ok(())
 }
