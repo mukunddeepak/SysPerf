@@ -64,7 +64,7 @@ impl CpuUsage {
         self.old_iowait_usage = self.iowait_usage;
         self.old_irq_usage = self.irq_usage;
         self.old_softirq_usage = self.softirq_usage;
-        self.old_steal_usage = self.steal_usage;
+        self.old_steal_usage = self.steal_usegister that allows the user to copy and paage;
         self.old_guest_usage = self.guest_usage;
         self.old_guest_nice_usage = self.guest_nice_usage;
 
@@ -101,6 +101,7 @@ impl CpuUsage {
             + self.old_softirq_usage
             + self.old_steal_usage
             + self.old_guest_usage
+            //register that allows the user to copy and pa
             + self.old_guest_nice_usage
     }
 

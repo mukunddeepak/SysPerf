@@ -1,4 +1,5 @@
-use crate::ChannelType;
+use crate::{MemUsageProtobuf}; //Imported protobuf
+
 use std::{fs::File, io::prelude::*, io::BufReader, io::Read, thread, time};
 
 #[derive(Debug)]
@@ -21,23 +22,23 @@ impl MemUsage {
         }
     }
 
-    fn update_values(&mut self,line_vector: Vec<u32>) -> MemUsage {
-        MemUsage {
-            self.Mem_Total: line_vector[0],
-            self.Mem_Free: line_vector[1],
-            self.Mem_Available: line_vector[2],
-            self.Mem_Buffer: line_vector[3],
-            self.Mem_Cached: line_vector[4],
-        }
+    fn update_values(&mut self,line_vector: Vec<u32>) {
+    
+            self.Mem_Total= line_vector[0];
+            self.Mem_Free= line_vector[1];
+            self.Mem_Available= line_vector[2];
+            self.Mem_Buffer=line_vector[3];
+            self.Mem_Cached= line_vector[4];
+        
     }
-
+ 
     pub fn convert_to_protobuf(&self)-> MemUsageProtobuf{
         MemUsageProtobuf{
-            Mem_Total: self.Mem_Total,
-            Mem_Free: self.Mem_Free,
-            Mem_Available: self.Mem_Available,
-            Mem_Buffer: self.Mem_Buffer,
-            Mem_Cached: self.Mem_Cached
+            mem_total: self.Mem_Total,
+            mem_free: self.Mem_Free,
+            mem_available: self.Mem_Available,
+            mem_buffer: self.Mem_Buffer,
+            mem_cached: self.Mem_Cached
         }
     }
 }
@@ -66,7 +67,7 @@ pub async fn main_mem_stat_handler(statefull_mem_usage: &mut MemUsage) {
             let line_val = finalvalue.trim().parse::<u32>().unwrap();
             temp_vec.push(line_val);
         }
-         statefull_mem_usage.MemUsage::update_values(temp_vec);
+        statefull_mem_usage.update_values(temp_vec);
         thread::sleep(time::Duration::from_millis(100));
     }
 }

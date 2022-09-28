@@ -6,7 +6,7 @@
 
 //Local module system :
 mod CPUStat;
-// mod MEMStat;
+mod MEMStat;
 
 //std imports
 use std::io::Result;
@@ -22,10 +22,10 @@ pub mod protobuf {
 }
 
 use protobuf::CpuUsage as CpuUsageProtobuf;
-// use protobuf::MemUsage as MemUsageProtobuf;
+use protobuf::MemUsage as MemUsageProtobuf;
 use protobuf::{CpuUsageRequest, MemUsageRequest};
 //Server trait
-use protobuf::fetch_data_server::{FetchData, FetchDataServer};
+use protobuf::fetch_data_server::{FetchData, FetchDataServer, FetchDataMem, FetchDataMemServer};
 
 #[tonic::async_trait]
 impl FetchData for CpuUsage {
@@ -34,12 +34,23 @@ impl FetchData for CpuUsage {
         req: tonic::Request<CpuUsageRequest>,
         ) -> std::result::Result<tonic::Response<CpuUsageProtobuf>, tonic::Status> {
         return Ok(tonic::Response::new(self.convert_to_protobuf()));
+    }    
+}
+
+impl FetchDataMem for MemUsage{
+ async fn fetch_mem_usage(
+        &self,
+       req: tonic::Request<MemUsageRequest>,
+      ) -> std::result::Result<tonic::Response<MemUsageProtobuf>, tonic::Status> {
+     return Ok(tonic::Response::new(self.convert_to_protobuf()));
     }
 }
 
+
+
 //Rust side structs
 use CPUStat::statfuncs::CpuUsage;
-// use MEMStat::memfuncs::MemUsage;
+use MEMStat::memfuncs::MemUsage;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -60,6 +71,7 @@ async fn main() -> Result<()> {
         println!("Listening on port 5001");
         Server::builder()
             .add_service(FetchDataServer::from_arc(clone))
+            .add_service(FetchDataMemServer)
             .serve(addr)
             .await;
     });
@@ -69,4 +81,4 @@ async fn main() -> Result<()> {
 
 
     Ok(())
-}
+ }
