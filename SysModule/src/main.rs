@@ -54,7 +54,7 @@ use MEMStat::memfuncs::MemUsage;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    //Do note, tokio uses single OS thread for all spwaned threads
+    //Do note, tokio uses single OS thread for all spawned threads
     //Non Blocking spawns :
 
     /*     tokio::spawn(async {
@@ -65,19 +65,24 @@ async fn main() -> Result<()> {
     let mut arc_statefull_cpu_usage = Arc::new(statefull_cpu_usage);
     let clone = Arc::clone(&arc_statefull_cpu_usage);
 
+    let mut statefull_mem_usage = MemUsage::new();
+    let mut arc_statefull_mem_usage = Arc:: new(statefull_mem_usage);
+    let clone1=ARC::clone(&arc_statefull_mem_usage);
+
 
     tokio::spawn(async move{
         let addr = "[::1]:5001".parse().unwrap();
         println!("Listening on port 5001");
         Server::builder()
             .add_service(FetchDataServer::from_arc(clone))
-            .add_service(FetchDataMemServer)
+            .add_service(FetchDataMemServer::from_arc(clone1))
             .serve(addr)
             .await;
     });
     unsafe{
         CPUStat::statfuncs::main_cpu_stat_handler(&mut Arc::get_mut_unchecked(&mut arc_statefull_cpu_usage));
-    }
+        MEMStat::memfuncs::main_mem_stat_handler(&mut Arc::get_mut_unchecked(&mut arc_statefull_mem_usage));
+       }
 
 
     Ok(())
