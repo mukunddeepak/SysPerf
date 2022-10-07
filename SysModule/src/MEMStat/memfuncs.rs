@@ -43,31 +43,4 @@ impl MemUsage {
     }
 }
 
-pub async fn main_mem_stat_handler(statefull_mem_usage: &mut MemUsage) {
-    loop {
-        let procmeminfo_fd = match File::open("/proc/meminfo"){
-            Ok(x)=>x,
-            Err(_)=>{
-                panic!("Make sure you are using a linux system! Error point[reading stat file]");
-            }
 
-        };
-
-        let mut buff_reader = BufReader::new(&procmeminfo_fd);
-        let mut meminfo = String::new();
-        let _ = buff_reader.read_to_string(&mut meminfo);
-        
-        let mut lines: Vec<&str> = meminfo.split("\n").into_iter().collect();
-        let mut temp_vec: Vec<u32> = Vec::new();
-
-        for i in 0..5 {
-            let pos1 = lines[i].chars().position(|c| c == ':').unwrap() + 1;
-            let pos2 = lines[i].chars().position(|c| c == 'k').unwrap();
-            let finalvalue = lines[i].get(pos1..pos2).unwrap();
-            let line_val = finalvalue.trim().parse::<u32>().unwrap();
-            temp_vec.push(line_val);
-        }
-        statefull_mem_usage.update_values(temp_vec);
-        thread::sleep(time::Duration::from_millis(100));
-    }
-}
