@@ -36,6 +36,10 @@ impl FetchData for CpuUsage {
     }
 }
 
+struct CpuUsageTransmitter{
+    recv : Arc<Mutex<CpuUsage>>
+}
+
 //Rust side structs
 use CPUStat::statfuncs::CpuUsage;
 // use MEMStat::memfuncs::MemUsage;
