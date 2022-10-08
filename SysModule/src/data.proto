@@ -7,7 +7,11 @@ message CpuUsage {
     int32 cpu_usage = 2;
 }
 message MemUsage{
-    float mem_usage = 1;
+    uint32 Mem_Total = 1;
+    uint32 Mem_Free = 2;
+    uint32 Mem_available = 3;
+    uint32 Mem_Buffer = 4;
+    uint32 Mem_Cached = 5;
 }
 
 message InitData{
@@ -28,6 +32,9 @@ message CpuUsageRequest{
 
 service FetchData{
     rpc FetchCpuUsage (CpuUsageRequest) returns (CpuUsage);
-    /* rpc FetchMemUsage (MemUsageRequest) returns (Data); */
     /* rpc InitDetails (EmptyReq) returns (InitData); */
+}
+
+service FetchDataMem{
+    rpc FetchMemUsage (MemUsageRequest) returns (Data);
 }
