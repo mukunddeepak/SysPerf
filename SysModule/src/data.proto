@@ -36,5 +36,5 @@ service FetchData{
 }
 
 service FetchDataMem{
-    rpc FetchMemUsage (MemUsageRequest) returns (Data);
+    rpc FetchMemUsage (MemUsageRequest) returns (MemUsage);
 }

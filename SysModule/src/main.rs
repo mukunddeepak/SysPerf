@@ -25,7 +25,8 @@ use protobuf::CpuUsage as CpuUsageProtobuf;
 use protobuf::MemUsage as MemUsageProtobuf;
 use protobuf::{CpuUsageRequest, MemUsageRequest};
 //Server trait
-use protobuf::fetch_data_server::{FetchData, FetchDataServer, FetchDataMem, FetchDataMemServer};
+use protobuf::fetch_data_server::{FetchData, FetchDataServer};
+use protobuf::fetch_data_mem_server::{ FetchDataMem, FetchDataMemServer};
 
 #[tonic::async_trait]
 impl FetchData for CpuUsage {
@@ -37,12 +38,13 @@ impl FetchData for CpuUsage {
     }    
 }
 
+#[tonic::async_trait]
 impl FetchDataMem for MemUsage{
- async fn fetch_mem_usage(
+    async fn fetch_mem_usage(
         &self,
-       req: tonic::Request<MemUsageRequest>,
-      ) -> std::result::Result<tonic::Response<MemUsageProtobuf>, tonic::Status> {
-     return Ok(tonic::Response::new(self.convert_to_protobuf()));
+        req: tonic::Request<MemUsageRequest>,
+        ) -> std::result::Result<tonic::Response<MemUsageProtobuf>, tonic::Status> {
+        return Ok(tonic::Response::new(self.convert_to_protobuf()));
     }
 }
 
@@ -67,7 +69,7 @@ async fn main() -> Result<()> {
 
     let mut statefull_mem_usage = MemUsage::new();
     let mut arc_statefull_mem_usage = Arc:: new(statefull_mem_usage);
-    let clone1=ARC::clone(&arc_statefull_mem_usage);
+    let clone1=Arc::clone(&arc_statefull_mem_usage);
 
 
     tokio::spawn(async move{
@@ -82,8 +84,8 @@ async fn main() -> Result<()> {
     unsafe{
         CPUStat::statfuncs::main_cpu_stat_handler(&mut Arc::get_mut_unchecked(&mut arc_statefull_cpu_usage));
         MEMStat::memfuncs::main_mem_stat_handler(&mut Arc::get_mut_unchecked(&mut arc_statefull_mem_usage));
-       }
+    }
 
 
     Ok(())
- }
+}
