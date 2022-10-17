@@ -53,6 +53,6 @@ SysPerf is a new proposed project aiming to achieve impressive monitoring system
     - Buferring stats for upto 30 seconds
 - In sprint 2, we will start working on TUI. Here 1 of the team mates manages the structres of the TUI and the rest connect the previously mentioned interface to the TUI structures.
 - As for qualitative requirements, we have the follwing in mind : 
-    - No sudo perms to run the frontend 
+    - No sudo permissions to run the frontend 
     - Being very responsive 
     - Neat TUI with minimal configurations
