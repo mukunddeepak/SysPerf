@@ -48,10 +48,6 @@ impl FetchDataMem for MemUsage{
     }
 }
 
-struct CpuUsageTransmitter{
-    recv : Arc<Mutex<CpuUsage>>
-}
-
 //Rust side structs
 use CPUStat::statfuncs::CpuUsage;
 use MEMStat::memfuncs::MemUsage;
@@ -84,8 +80,13 @@ async fn main() -> Result<()> {
             .await;
     });
     unsafe{
-        CPUStat::statfuncs::main_cpu_stat_handler(&mut Arc::get_mut_unchecked(&mut arc_statefull_cpu_usage));
-        MEMStat::memfuncs::main_mem_stat_handler(&mut Arc::get_mut_unchecked(&mut arc_statefull_mem_usage));
+        tokio::spawn(async move{
+            CPUStat::statfuncs::main_cpu_stat_handler(&mut Arc::get_mut_unchecked(&mut arc_statefull_cpu_usage)).await;
+        });
+        tokio::spawn(async move{
+            MEMStat::memfuncs::main_mem_stat_handler(&mut Arc::get_mut_unchecked(&mut arc_statefull_mem_usage)).await;
+        }).await;
+        //Last await is to keep the main thread alive in the aysnc space.
     }
 
 

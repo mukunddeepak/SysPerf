@@ -128,7 +128,7 @@ impl CpuUsage {
     }
 }
 
-pub fn main_cpu_stat_handler(statefull_cpu_usage: &mut CpuUsage) {
+pub async fn main_cpu_stat_handler(statefull_cpu_usage: &mut CpuUsage) {
     loop {
         //Reading entire file from system
         let procstat_fd = match File::open("/proc/stat") {

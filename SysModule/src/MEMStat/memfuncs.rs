@@ -33,6 +33,7 @@ impl MemUsage {
     }
  
     pub fn convert_to_protobuf(&self)-> MemUsageProtobuf{
+        println!("Hello world, {}", self.Mem_Total);
         MemUsageProtobuf{
             mem_total: self.Mem_Total,
             mem_free: self.Mem_Free,
@@ -45,6 +46,7 @@ impl MemUsage {
 
 
 pub async fn main_mem_stat_handler(statefull_mem_usage: &mut MemUsage) {
+            println!("Jello");
     loop {
         let procmeminfo_fd = match File::open("/proc/meminfo"){
             Ok(x)=>x,
