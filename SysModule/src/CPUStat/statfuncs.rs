@@ -123,7 +123,7 @@ impl CpuUsage {
         println!("called , {}", self.calculate_recent_usage());
         let needed_cpu_id : i32 = match req_payload.needed_cpu_usage.parse(){
             Ok(n) => { n }
-            _ => { panic!("Junk CPU ID usage requested")}
+            _ => { panic!("Junk CPU ID usage requested") }
         };
         CpuUsageProtobuf{
             cpu_id : String::from("0"),
