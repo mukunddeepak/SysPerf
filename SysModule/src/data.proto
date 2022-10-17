@@ -26,7 +26,7 @@ message MemUsageRequest{
     float prev_mem_usage = 1;
 }
 message CpuUsageRequest{
-    int32 needed_cpu_usage = 1;
+    string needed_cpu_usage = 1;
 }
 
 

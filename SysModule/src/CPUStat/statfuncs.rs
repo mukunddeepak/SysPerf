@@ -1,7 +1,7 @@
 use crate::{CpuUsageProtobuf}; //Imported protobuf
                                                         //definitions from main
 use std::{fs::File, io::prelude::*, io::BufReader, sync::mpsc::channel, thread, time}; //Std
-                                                                                       //imports
+use crate::protobuf::CpuUsageRequest;                                                                                       //imports
 
 #[derive(Debug)]
 pub struct CpuUsage {
@@ -119,8 +119,12 @@ impl CpuUsage {
     }
 
     //We are using self to obtain the value from the CpuUsage structure as it is being implemented here.
-    pub fn convert_to_protobuf(&self) -> CpuUsageProtobuf {
+    pub fn convert_to_protobuf(&self, req_payload : CpuUsageRequest) -> CpuUsageProtobuf {
         println!("called , {}", self.calculate_recent_usage());
+        let needed_cpu_id : i32 = match req_payload.needed_cpu_usage.parse(){
+            Ok(n) => { n }
+            _ => { panic!("Junk CPU ID usage requested")}
+        };
         CpuUsageProtobuf{
             cpu_id : String::from("0"),
             cpu_usage : self.calculate_recent_usage() as i32,

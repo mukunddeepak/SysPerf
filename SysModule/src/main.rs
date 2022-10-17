@@ -34,7 +34,8 @@ impl FetchData for CpuUsage {
         &self,
         req: tonic::Request<CpuUsageRequest>,
         ) -> std::result::Result<tonic::Response<CpuUsageProtobuf>, tonic::Status> {
-        return Ok(tonic::Response::new(self.convert_to_protobuf()));
+        let request_paylod = req.into_inner();
+        return Ok(tonic::Response::new(self.convert_to_protobuf(request_paylod)));
     }    
 }
 
