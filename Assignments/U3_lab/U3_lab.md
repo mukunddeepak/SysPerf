@@ -73,6 +73,11 @@ The above image shows two print statements accoring to the point in code the err
 ![image](./3_9.png)
 ![image](./3_10.png)
 
+- Modifying Configuration Items | Nandan : 
+![image](./3_11.png)
+![image](./3_12.png)
+![image](./3_13.png)
+
 
 
 

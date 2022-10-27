@@ -29,7 +29,7 @@ use protobuf::fetch_data_server::{FetchData, FetchDataServer};
 use protobuf::fetch_data_mem_server::{ FetchDataMem, FetchDataMemServer};
 
 #[tonic::async_trait]
-impl FetchData for CpuUsage {
+impl FetchData for MultiCpuUsage {
     async fn fetch_cpu_usage(
         &self,
         req: tonic::Request<CpuUsageRequest>,
@@ -50,7 +50,7 @@ impl FetchDataMem for MemUsage{
 }
 
 //Rust side structs
-use CPUStat::statfuncs::CpuUsage;
+use CPUStat::statfuncs::MultiCpuUsage;
 use MEMStat::memfuncs::MemUsage;
 
 #[tokio::main]
@@ -62,7 +62,7 @@ async fn main() -> Result<()> {
            MEMStat::memfuncs::main_mem_stat_handler(mem_tx).await;
            });
            */
-    let mut statefull_cpu_usage = CpuUsage::new();
+    let mut statefull_cpu_usage = MultiCpuUsage::new();
     let mut arc_statefull_cpu_usage = Arc::new(statefull_cpu_usage);
     let clone = Arc::clone(&arc_statefull_cpu_usage);
 
