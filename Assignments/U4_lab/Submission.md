@@ -216,3 +216,72 @@ from grpcurl : Should give back a JSON with cpu_id anf cpu_usage
 ### Sub question 3 : 
 
 - This module in itself is large enough, on further discussion on reducing unit size, we settled on using uncoupled functions. Functions that are not part of the struct. But this is a anit-pattern given we are using rust and is strongly recommended against.
+
+## Question 2 : Dynamic Testing
+
+### Boundary value analysis (2a)
+Testing of data is done based on boundary values or between two opposite ends where the ends may be like from start to end, or lower to upper or from maximum to minimum. Usually occurs after equivalence partioning.
+#### Boundary 1 : 
+- **Test case ID**: 3
+- **Test priority (Low/Medium/High)**: Medium
+
+- **Designed by Navin Shrinivas**
+
+- **Module Name**: CpuUsage
+- **Test Designed Date**: 04/11/22
+- **Test Title/Name**: LOWER BOUNDARY CPU ID usage request
+- **Test Summary/Description**: Aim is to request a cpu's usage with ID on lower end
+- **Pre-conditions**: The code should be comiling and running properly listening on any one of the ports, the tester should also have grpcurl installed.
+- **Dependencies**: cargo toolchains must be installed.
+- **Test Steps**: 
+  - cargo run [In the root folder]
+  - run the below commands using data mentioned in this test [Make sure your path of the new terminal is also in the root directory of the project]
+  ```bash
+  grpcurl -plaintext -import-path ./src -proto data.proto -d '{ "needed_cpu_usage" : "0" }' localhost:5001 data.protobuf.FetchData/FetchCpuUsage
+  ```
+- **Expected Result**: 
+```
+From the software : give the entire CPU's USAGE (0).
+from grpcurl : Should give back a JSON with cpu_id anf cpu_usage
+```
+- **Post-condition**: The code should still be listening on the same port and should have not crashed
+![image](./2a_1.png)
+
+#### Boundary 2 : 
+- **Test case ID**: 4
+- **Test priority (Low/Medium/High)**: Medium
+
+- **Designed by Navin Shrinivas**
+
+- **Module Name**: CpuUsage
+- **Test Designed Date**: 04/11/22
+- **Test Title/Name**: UPPER BOUNDARY CPU ID usage request
+- **Test Summary/Description**: Aim is to request a cpu's usage with ID on upper end
+- **Pre-conditions**: The code should be comiling and running properly listening on any one of the ports, the tester should also have grpcurl installed.
+- **Dependencies**: cargo toolchains must be installed.
+- **Test Steps**: 
+  - cargo run [In the root folder]
+  - run the below commands using data mentioned in this test [Make sure your path of the new terminal is also in the root directory of the project]
+  ```bash
+  grpcurl -plaintext -import-path ./src -proto data.proto -d '{ "needed_cpu_usage" : "upper_limit" }' localhost:5001 data.protobuf.FetchData/FetchCpuUsage
+  ```
+- **Expected Result**: 
+```
+From the software : give back the correct usage of last cpu core.
+from grpcurl : Should give back a JSON with cpu_id anf cpu_usage
+```
+- **Post-condition**: The code should still be listening on the same port and should have not crashed
+![image](./2a_2.png)
+
+### Mutation testing (2b)
+Since our codebases comprises of two components, CpuUsage and MemUsage so we can apply mutiple mutations on these.
+1. Remove a the condition to tell that a particular cpu_id doesnt exist.
+![image](./2b_1.png)
+2. Alter the structure of the memory usage which causes an error to occur as the program cant extract or place the values of the system.
+![image](./2b_2.png)
+3. Alter the structure of the .proto file and function, so that we cannot read the new values of the system and we will be stuck on the first value.
+![image](./2b_3.png)
+
+> Note : the code denies to compile!
+
+The above cases being caught at compile time is what set's Rust, our programming langauge of choice apart of Software Engineering and safe practices!
