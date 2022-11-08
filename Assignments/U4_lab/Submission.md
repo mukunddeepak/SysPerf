@@ -285,3 +285,11 @@ Since our codebases comprises of two components, CpuUsage and MemUsage so we can
 > Note : the code denies to compile!
 
 The above cases being caught at compile time is what set's Rust, our programming langauge of choice apart of Software Engineering and safe practices!
+
+## Question 3 : Cyclomatic complexity 
+
+- Here are the two cfg's with complexities seperately 
+![image](./3_1.png)
+![image](./3_2.png)
+- The over all cyclomatic complexity of 2 graphs together is 4
+- As the cyclomatic complexity for an async code is onl 4, we as a team don't seem much room for refactoring
