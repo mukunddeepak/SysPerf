@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package data.protobuf;
-
+option go_package = "SysPerfTUI/grpc";
 message CpuUsage {
   string cpu_id = 1;
   float cpu_usage = 2;

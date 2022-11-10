@@ -182,7 +182,7 @@ from grpcurl : Shoudl give an error of no response.
 ```
 - **Post-condition**: The code should still be listening on the same port and should have not crashed
 
-### Tets case 1 : Valid test case
+### Tets case 2 : Valid test case
 
 - **Test case ID**: 2
 - **Test priority (Low/Medium/High)**: Medium
@@ -293,3 +293,7 @@ The above cases being caught at compile time is what set's Rust, our programming
 ![image](./3_2.png)
 - The over all cyclomatic complexity of 2 graphs together is 4
 - As the cyclomatic complexity for an async code is onl 4, we as a team don't seem much room for refactoring
+
+## Template 
+
+![image](./template.png)

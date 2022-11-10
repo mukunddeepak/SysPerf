@@ -57,6 +57,8 @@ A brief WBS amongst our team members :
 - Team member 3 : Handles Disk usage and GRPC client
 - Team member 4 : Handles TUI
 
+![image](./wbs.png)
+
 ### Effort Estimates
 
 > Note : The kloc estimates here are **extrememely** rough.

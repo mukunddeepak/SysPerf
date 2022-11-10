@@ -24,8 +24,9 @@ pdf_options:
 ![image](./ipl.jpeg)
 
 ## Question 2 : MakeMyTrip DFD's :
-
-![image](./decomp.jpeg)
+### Top level DFD
 ![image](./1_lv_Decomp-Page-1.jpg)
+### 2nd level DFD
 ![image](./1_lv_Decomp-Page-2.jpg)
+### 3rd level DFD
 ![image](./1_lv_Decomp-Page-3.jpg)
