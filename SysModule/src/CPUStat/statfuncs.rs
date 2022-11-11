@@ -198,6 +198,17 @@ impl MultiCpuUsage {
             cpu_usage: self.calculate_recent_usage(needed_cpu_id) as f32,
         }
     }
+    pub fn convert_to_detail_protobuf(&self) -> crate::InitDataProtobuf{
+        let mut largest = 0;
+        for i in self.irq_usage.keys(){
+            if *i>largest{
+                largest = *i
+            }
+        }
+        crate::InitDataProtobuf{
+            number_of_cpu : largest
+        }
+    }
 }
 
 pub async fn main_cpu_stat_handler(statefull_cpu_usage: &mut MultiCpuUsage) {

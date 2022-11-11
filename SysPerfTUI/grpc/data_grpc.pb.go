@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FetchDataClient interface {
 	FetchCpuUsage(ctx context.Context, in *CpuUsageRequest, opts ...grpc.CallOption) (*CpuUsage, error)
+	InitCpuDetail(ctx context.Context, in *EmptyReq, opts ...grpc.CallOption) (*InitData, error)
 }
 
 type fetchDataClient struct {
@@ -42,11 +43,21 @@ func (c *fetchDataClient) FetchCpuUsage(ctx context.Context, in *CpuUsageRequest
 	return out, nil
 }
 
+func (c *fetchDataClient) InitCpuDetail(ctx context.Context, in *EmptyReq, opts ...grpc.CallOption) (*InitData, error) {
+	out := new(InitData)
+	err := c.cc.Invoke(ctx, "/data.protobuf.FetchData/InitCpuDetail", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FetchDataServer is the server API for FetchData service.
 // All implementations must embed UnimplementedFetchDataServer
 // for forward compatibility
 type FetchDataServer interface {
 	FetchCpuUsage(context.Context, *CpuUsageRequest) (*CpuUsage, error)
+	InitCpuDetail(context.Context, *EmptyReq) (*InitData, error)
 	mustEmbedUnimplementedFetchDataServer()
 }
 
@@ -56,6 +67,9 @@ type UnimplementedFetchDataServer struct {
 
 func (UnimplementedFetchDataServer) FetchCpuUsage(context.Context, *CpuUsageRequest) (*CpuUsage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FetchCpuUsage not implemented")
+}
+func (UnimplementedFetchDataServer) InitCpuDetail(context.Context, *EmptyReq) (*InitData, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method InitCpuDetail not implemented")
 }
 func (UnimplementedFetchDataServer) mustEmbedUnimplementedFetchDataServer() {}
 
@@ -88,6 +102,24 @@ func _FetchData_FetchCpuUsage_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _FetchData_InitCpuDetail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EmptyReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FetchDataServer).InitCpuDetail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/data.protobuf.FetchData/InitCpuDetail",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FetchDataServer).InitCpuDetail(ctx, req.(*EmptyReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // FetchData_ServiceDesc is the grpc.ServiceDesc for FetchData service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +130,10 @@ var FetchData_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FetchCpuUsage",
 			Handler:    _FetchData_FetchCpuUsage_Handler,
+		},
+		{
+			MethodName: "InitCpuDetail",
+			Handler:    _FetchData_InitCpuDetail_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

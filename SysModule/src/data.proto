@@ -25,6 +25,7 @@ message CpuUsageRequest { string needed_cpu_usage = 1; }
 
 service FetchData {
   rpc FetchCpuUsage(CpuUsageRequest) returns (CpuUsage);
+  rpc InitCpuDetail (EmptyReq) returns (InitData);
   /* rpc InitDetails (EmptyReq) returns (InitData); */
 }
 

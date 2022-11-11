@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package data.protobuf;
+option go_package = "SysPerfTUI/grpc";
+
+message CpuUsage {
+  string cpu_id = 1;
+  float cpu_usage = 2;
+}
+message MemUsage {
+  uint32 Mem_Total = 1;
+  uint32 Mem_Free = 2;
+  uint32 Mem_available = 3;
+  uint32 Mem_Buffer = 4;
+  uint32 Mem_Cached = 5;
+}
+
+message InitData {
+  int32 number_of_cpu = 1;
+  // int32 number_of_partition = 2;
+}
+
+message EmptyReq {}
+message MemUsageRequest { float prev_mem_usage = 1; }
+message CpuUsageRequest { string needed_cpu_usage = 1; }
+
+service FetchData {
+  rpc FetchCpuUsage(CpuUsageRequest) returns (CpuUsage);
+  rpc InitCpuDetail (EmptyReq) returns (InitData);
+  /* rpc InitDetails (EmptyReq) returns (InitData); */
+}
+
+service FetchDataMem { rpc FetchMemUsage(MemUsageRequest) returns (MemUsage); }

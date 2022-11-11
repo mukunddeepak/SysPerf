@@ -13,6 +13,7 @@ use std::io::Result;
 use std::sync::mpsc;
 use std::sync::Arc;
 
+use tonic::Request;
 //Cargo crate modules :
 use tonic::transport::Server;
 
@@ -23,13 +24,20 @@ pub mod protobuf {
 
 use protobuf::CpuUsage as CpuUsageProtobuf;
 use protobuf::MemUsage as MemUsageProtobuf;
-use protobuf::{CpuUsageRequest, MemUsageRequest};
+use protobuf::InitData as InitDataProtobuf;
+use protobuf::{CpuUsageRequest, MemUsageRequest, EmptyReq};
 //Server trait
 use protobuf::fetch_data_server::{FetchData, FetchDataServer};
 use protobuf::fetch_data_mem_server::{ FetchDataMem, FetchDataMemServer};
 
 #[tonic::async_trait]
 impl FetchData for MultiCpuUsage {
+    async fn init_cpu_detail(
+        &self,
+        req: tonic::Request<EmptyReq>,
+        ) -> std::result::Result<tonic::Response<InitDataProtobuf>, tonic::Status> {
+        return Ok(tonic::Response::new(self.convert_to_detail_protobuf()))
+    }    
     async fn fetch_cpu_usage(
         &self,
         req: tonic::Request<CpuUsageRequest>,
