@@ -1,8 +1,8 @@
 package main
 
 import (
-	"SysPerfTUI/globals"
 	"SysPerfTUI/Modules"
+	"SysPerfTUI/globals"
 	"context"
 	"log"
 	"sync"
@@ -13,10 +13,10 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func globalConstructors(){
+func globalConstructors() {
 	globals.Mainwaitgroup = new(sync.WaitGroup)
-  conn, err := grpc.Dial("localhost:5001", grpc.WithTransportCredentials(insecure.NewCredentials()))
-  globals.Conn = conn
+	conn, err := grpc.Dial("localhost:5001", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	globals.Conn = conn
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -25,7 +25,7 @@ func globalConstructors(){
 	globals.Cancel = cancel
 }
 
-func main(){
+func main() {
 	globalConstructors()
 	defer globals.Cancel()
 	defer globals.Conn.Close()

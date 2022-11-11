@@ -15,6 +15,7 @@ import (
 	"github.com/mum4k/termdash/widgets/barchart"
 	"github.com/mum4k/termdash/widgets/button"
 )
+
 func playBarChart(ctx context.Context, bc *barchart.BarChart, delay time.Duration) {
 	const max = 100
 
@@ -24,9 +25,9 @@ func playBarChart(ctx context.Context, bc *barchart.BarChart, delay time.Duratio
 		select {
 		case <-ticker.C:
 			var values []int
-			for i := 0; i < int(globals.InitCpuData);i++ {
+			for i := 0; i < int(globals.InitCpuData); i++ {
 				temp := globals.CpuDataBuf[i]
-				if temp > 100 || temp < 0{
+				if temp > 100 || temp < 0 {
 					temp = 100
 				}
 				values = append(values, int(temp))
@@ -42,8 +43,8 @@ func playBarChart(ctx context.Context, bc *barchart.BarChart, delay time.Duratio
 	}
 }
 
-func RenderWidgets(){
-  t, err := tcell.New()
+func RenderWidgets() {
+	t, err := tcell.New()
 	if err != nil {
 		panic(err)
 	}
@@ -54,10 +55,10 @@ func RenderWidgets(){
 	bars_text_color := make([]cell.Color, globals.InitCpuData+1)
 	bars_text := make([]string, globals.InitCpuData+1)
 	temp := "CPU"
-	for i:=int32(0);i<=globals.InitCpuData;i++{
-	  bars[i] = cell.ColorAqua
-	  bars_text_color[i] = cell.ColorPurple
-	  bars_text[i] = temp+strconv.Itoa(int(i))
+	for i := int32(0); i <= globals.InitCpuData; i++ {
+		bars[i] = cell.ColorAqua
+		bars_text_color[i] = cell.ColorPurple
+		bars_text[i] = temp + strconv.Itoa(int(i))
 	}
 	bc, err := barchart.New(
 		barchart.BarColors(bars),
@@ -96,7 +97,7 @@ func RenderWidgets(){
 	quitter := func(k *terminalapi.Keyboard) {
 		if k.Key == 'q' || k.Key == 'Q' {
 			cancel()
-		  return
+			return
 		}
 	}
 
