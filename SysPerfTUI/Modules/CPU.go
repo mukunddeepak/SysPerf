@@ -2,7 +2,6 @@ package modules
 
 import (
 	"SysPerfTUI/globals"
-	"SysPerfTUI/grpc"
 	pb "SysPerfTUI/grpc"
 	"context"
 	"log"
@@ -10,7 +9,7 @@ import (
 	"time"
 )
 
-func CoreUsageHandler(core_id int32, c grpc.FetchDataClient) {
+func CoreUsageHandler(core_id int32) {
 	for {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
@@ -30,8 +29,10 @@ func CoreUsageHandler(core_id int32, c grpc.FetchDataClient) {
 func MainCpuService() {
 	defer globals.Mainwaitgroup.Done()
 	c := pb.NewFetchDataClient(globals.Conn)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
 	InitDetailsRequest := pb.EmptyReq{}
-	InitDetails, err := c.InitCpuDetail(globals.Ctx, &InitDetailsRequest)
+	InitDetails, err := c.InitCpuDetail(ctx, &InitDetailsRequest)
 	globals.InitCpuData = InitDetails.GetNumberOfCpu()
 	if err != nil {
 		log.Println("RPC error")
@@ -39,7 +40,7 @@ func MainCpuService() {
 	globals.CpuDataBuf = make([]float64, InitDetails.GetNumberOfCpu()+1)
 	globals.Mainwaitgroup.Add(1)
 	for i := int32(0); i <= InitDetails.GetNumberOfCpu(); i++ {
-		go CoreUsageHandler(i, c)
+		go CoreUsageHandler(i)
 	}
 	return
 }

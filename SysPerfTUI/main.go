@@ -3,10 +3,8 @@ package main
 import (
 	"SysPerfTUI/Modules"
 	"SysPerfTUI/globals"
-	"context"
 	"log"
 	"sync"
-	"time"
 
 	//https://grpc.io/docs/languages/go/quickstart/ - Resource for grpc basics
 	"google.golang.org/grpc"
@@ -20,15 +18,12 @@ func globalConstructors() {
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	globals.Ctx = ctx
-	globals.Cancel = cancel
 }
 
 func main() {
 	globalConstructors()
-	defer globals.Cancel()
 	defer globals.Conn.Close()
 	modules.MainCpuService()
+	modules.MainMemService()
 	modules.RenderWidgets()
 }

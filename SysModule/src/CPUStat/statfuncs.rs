@@ -193,9 +193,13 @@ impl MultiCpuUsage {
                 panic!("Junk CPU ID usage requested")
             }
         };
+        let mut usage = self.calculate_recent_usage(needed_cpu_id) as f32;
+        if usage.is_nan(){
+            usage = 0.0
+        }
         CpuUsageProtobuf {
             cpu_id: String::from(needed_cpu_id.to_string()),
-            cpu_usage: self.calculate_recent_usage(needed_cpu_id) as f32,
+            cpu_usage: usage
         }
     }
     pub fn convert_to_detail_protobuf(&self) -> crate::InitDataProtobuf{
