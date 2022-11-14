@@ -22,6 +22,11 @@ func CoreUsageHandler(core_id int32) {
 			log.Println(err)
 		}
 		globals.CpuDataBuf[core_id] = float64(result.GetCpuUsage())
+		//Move all elements one possistion back and push new value to end
+		for i := 0;i<len(globals.CpuGraphBuf)-1;i++{
+			globals.CpuGraphBuf[i] = globals.CpuGraphBuf[i+1]
+		}
+		globals.CpuGraphBuf[len(globals.CpuGraphBuf)-1] = float64(result.GetCpuUsage())
 		time.Sleep(time.Second)
 	}
 }

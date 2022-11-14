@@ -18,6 +18,7 @@ func globalConstructors() {
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
+	globals.CpuGraphBuf = make([]float64, 25)
 }
 
 func main() {

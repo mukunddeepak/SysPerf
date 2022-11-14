@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"time"
 
+	"fmt"
+
 	"github.com/mum4k/termdash"
 	"github.com/mum4k/termdash/cell"
 	"github.com/mum4k/termdash/container"
@@ -17,10 +19,10 @@ import (
 	"github.com/mum4k/termdash/widgets/button"
 	"github.com/mum4k/termdash/widgets/donut"
 	"github.com/mum4k/termdash/widgets/gauge"
-	"fmt"
+	"github.com/mum4k/termdash/widgets/text"
 )
-func playGauge(ctx context.Context, g *gauge.Gauge, delay time.Duration, percent int32) {
-	progress := int(percent)
+func playGauge(ctx context.Context, g *gauge.Gauge, delay time.Duration, percent *int32) {
+	progress := int(*percent)
 
 	ticker := time.NewTicker(delay)
 	defer ticker.Stop()
@@ -30,7 +32,7 @@ func playGauge(ctx context.Context, g *gauge.Gauge, delay time.Duration, percent
 			if err := g.Percent(progress); err != nil {
 				panic(err)
 			}
-			progress = int(percent)
+			progress = int(*percent)
 		case <-ctx.Done():
 			return
 		}
@@ -78,6 +80,13 @@ func playBarChart(ctx context.Context, bc *barchart.BarChart, delay time.Duratio
 		case <-ctx.Done():
 			return
 		}
+	}
+}
+func writeText(widget *text.Text, time_dur time.Duration, variable *float64){
+	for{
+		widget.Reset()
+		widget.Write(strconv.FormatFloat(*variable,'g',5,64)+" GiB")
+		time.Sleep(time_dur)
 	}
 }
 
@@ -142,44 +151,44 @@ func RenderWidgets() {
 	mem_color[0] = cell.ColorRed
 
 	used_ram, err := gauge.New(
-		gauge.Height(1),
-		gauge.Color(cell.ColorAqua),
+		gauge.Height(4),
+		gauge.Color(mem_color[0]),
 		gauge.BorderTitle("Used RAM"),
 	)
 	if err != nil {
 		panic(err)
 	}
-	go playGauge(ctx, used_ram, time.Second, globals.Mem_used_percent)
+	go playGauge(ctx, used_ram, time.Second, &globals.Mem_used_percent)
 
 	available_ram, err := gauge.New(
-		gauge.Height(1),
+		gauge.Height(4),
 		gauge.Color(mem_color[0]),
 		gauge.BorderTitle("Available RAM"),
 	)
 	if err != nil {
 		panic(err)
 	}
-	go playGauge(ctx, available_ram, time.Second, globals.Mem_available_percentage)
+	go playGauge(ctx, available_ram, time.Second, &globals.Mem_available_percentage)
 
 	cached_ram, err := gauge.New(
-		gauge.Height(1),
+		gauge.Height(4),
 		gauge.Color(mem_color[0]),
 		gauge.BorderTitle("Cached RAM"),
 	)
 	if err != nil {
 		panic(err)
 	}
-	go playGauge(ctx, cached_ram, time.Second, globals.Mem_cached_percentage)
+	go playGauge(ctx, cached_ram, time.Second, &globals.Mem_cached_percentage)
 
 	free_ram, err := gauge.New(
-		gauge.Height(1),
+		gauge.Height(4),
 		gauge.Color(mem_color[0]),
 		gauge.BorderTitle("Free RAM"),
 	)
 	if err != nil {
 		panic(err)
 	}
-	go playGauge(ctx, free_ram, time.Second, globals.Mem_free_percentage)
+	go playGauge(ctx, free_ram, time.Second, &globals.Mem_free_percentage)
 
 	changecolorB, err := button.New("(c)olor", func() error {
 		for i := int32(0); i < globals.InitCpuData; i++ {
@@ -209,7 +218,29 @@ if err != nil {
 }
 go playBarChart(ctx, bc, 1*time.Second)
 
+used_ram_text, err := text.New()
+	if err != nil {
+		panic(err)
+	}
+	go writeText(used_ram_text, time.Second, &globals.Mem_used)
 
+available_ram_text, err := text.New()
+	if err != nil {
+		panic(err)
+	}
+	go writeText(available_ram_text, time.Second, &globals.Mem_available)
+
+cached_ram_text, err := text.New()
+	if err != nil {
+		panic(err)
+	}
+	go writeText(cached_ram_text, time.Second, &globals.Mem_cached)
+
+free_ram_text, err := text.New()
+	if err != nil {
+		panic(err)
+	}
+	go writeText(free_ram_text, time.Second, &globals.Mem_free)
 c, err := container.New(
 	t,
 	container.Border(linestyle.Light),
@@ -248,13 +279,28 @@ c, err := container.New(
 							container.SplitVertical(
 								container.Left(
 									container.Border(linestyle.Light),
-									container.BorderTitle("Total Used RAM : "+strconv.FormatFloat(globals.Mem_used,'g',5,64)+" GiB"),
-									container.PlaceWidget(used_ram),
+									container.BorderTitle("Total Used RAM : "),
+									container.SplitHorizontal(
+										container.Top(
+											container.PlaceWidget(used_ram),
+										),
+										container.Bottom(
+											container.PlaceWidget(used_ram_text),
+										),
+									),
 								),
 								container.Right(
 									container.Border(linestyle.Light),
-									container.BorderTitle("Total Available RAM : "+strconv.FormatFloat(globals.Mem_available,'g',5,64)+" GiB"),
+									container.BorderTitle("Total Available RAM : "),
+									container.SplitHorizontal(
+										container.Top(
 									container.PlaceWidget(available_ram),
+
+										),
+										container.Bottom(
+											container.PlaceWidget(available_ram_text),
+										),
+									),
 								),
 							),
 						),
@@ -262,13 +308,28 @@ c, err := container.New(
 							container.SplitVertical(
 								container.Left(
 									container.Border(linestyle.Light),
-									container.BorderTitle("Total Cached RAM : "+strconv.FormatFloat(globals.Mem_cached,'g',5,64)+" GiB"),
+									container.BorderTitle("Total Cached RAM : "),
+									container.SplitHorizontal(
+										container.Top(
 									container.PlaceWidget(cached_ram),
+
+										),
+										container.Bottom(
+											container.PlaceWidget(cached_ram_text),
+										),
+									),
 								),
 								container.Right(
 									container.Border(linestyle.Light),
-									container.BorderTitle("Total Free RAM : "+strconv.FormatFloat(globals.Mem_free,'g',5,64)+" GiB"),
+									container.BorderTitle("Total Free RAM : "),
+									container.SplitHorizontal(
+										container.Top(
 									container.PlaceWidget(free_ram),
+										),
+										container.Bottom(
+											container.PlaceWidget(free_ram_text),
+										),
+									),
 								),
 							),
 						),

@@ -8,6 +8,7 @@ import (
 var Mainwaitgroup *sync.WaitGroup
 var Conn *grpc.ClientConn
 var CpuDataBuf []float64
+var CpuGraphBuf []float64
 var InitCpuData int32
 
 var Mem_total float64
