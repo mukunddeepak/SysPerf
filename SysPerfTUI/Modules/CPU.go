@@ -22,6 +22,22 @@ func CoreUsageHandler(core_id int32) {
 			log.Println(err)
 		}
 		globals.CpuDataBuf[core_id] = float64(result.GetCpuUsage())
+		time.Sleep(time.Second)
+	}
+}
+
+func RollingCpuUpdate(){
+	for{
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		c := pb.NewFetchDataClient(globals.Conn)
+		request := pb.CpuUsageRequest{
+			NeededCpuUsage: strconv.Itoa(int(0)),
+		}
+		result, err := c.FetchCpuUsage(ctx, &request)
+		if err != nil {
+			log.Println(err)
+		}
 		//Move all elements one possistion back and push new value to end
 		for i := 0;i<len(globals.CpuGraphBuf)-1;i++{
 			globals.CpuGraphBuf[i] = globals.CpuGraphBuf[i+1]

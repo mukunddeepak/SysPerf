@@ -24,6 +24,7 @@ func globalConstructors() {
 func main() {
 	globalConstructors()
 	defer globals.Conn.Close()
+	go modules.RollingCpuUpdate()
 	modules.MainCpuService()
 	modules.MainMemService()
 	modules.RenderWidgets()

@@ -3,9 +3,11 @@ package modules
 import (
 	"SysPerfTUI/globals"
 	"context"
-	"math/rand"
+	//"math/rand"
 	"strconv"
 	"time"
+  "math"
+  "math/rand"
 
 	"fmt"
 
@@ -16,10 +18,11 @@ import (
 	"github.com/mum4k/termdash/terminal/tcell"
 	"github.com/mum4k/termdash/terminal/terminalapi"
 	"github.com/mum4k/termdash/widgets/barchart"
-	"github.com/mum4k/termdash/widgets/button"
 	"github.com/mum4k/termdash/widgets/donut"
 	"github.com/mum4k/termdash/widgets/gauge"
 	"github.com/mum4k/termdash/widgets/text"
+	"github.com/mum4k/termdash/widgets/linechart"
+	"github.com/mum4k/termdash/widgets/button"
 )
 func playGauge(ctx context.Context, g *gauge.Gauge, delay time.Duration, percent *int32) {
 	progress := int(*percent)
@@ -90,6 +93,32 @@ func writeText(widget *text.Text, time_dur time.Duration, variable *float64){
 	}
 }
 
+//TO DELETE
+func sineInputs() []float64 {
+	var res []float64
+
+	for i := 0; i < 200; i++ {
+		v := math.Sin(float64(i) / 100 * math.Pi)
+		res = append(res, v)
+	}
+	return res
+}
+func playLineChart(ctx context.Context, lc *linechart.LineChart, delay time.Duration) {
+	ticker := time.NewTicker(delay) //Using timeseries here
+	defer ticker.Stop()
+	for{
+		select {
+		case <-ticker.C:
+			if err := lc.Series("first", globals.CpuGraphBuf,linechart.SeriesCellOpts(cell.FgColor(cell.ColorNumber(33)))); err != nil {
+				panic(err)
+			}
+
+
+		case <-ctx.Done():
+			return
+		}
+	}
+}
 func RenderWidgets() {
 	tcell.ColorMode(terminalapi.ColorMode256)
 	t, err := tcell.New()
@@ -190,13 +219,12 @@ func RenderWidgets() {
 	}
 	go playGauge(ctx, free_ram, time.Second, &globals.Mem_free_percentage)
 
-	changecolorB, err := button.New("(c)olor", func() error {
+   changecolorB, err := button.New("(c)olor", func() error {
 		for i := int32(0); i < globals.InitCpuData; i++ {
 			bars[i] = cell.ColorNumber(rand.Intn(256))
 			bars_text_color[i] = cell.ColorNumber(rand.Intn(256))
 		}
 		//[TODO]Change color of donut and gagues too, I dont seem to be able to do it!
-
 		return nil
 	},
 	button.FillColor(cell.ColorNumber(220)),
@@ -241,6 +269,16 @@ free_ram_text, err := text.New()
 		panic(err)
 	}
 	go writeText(free_ram_text, time.Second, &globals.Mem_free)
+const redrawInterval = time.Second
+lc, err := linechart.New(
+    linechart.AxesCellOpts(cell.FgColor(cell.ColorRed)),
+    linechart.YLabelCellOpts(cell.FgColor(cell.ColorAqua)),
+    linechart.XLabelCellOpts(cell.FgColor(cell.ColorAqua)),
+)
+if err != nil{
+    panic(err)
+}
+go playLineChart(ctx, lc, redrawInterval)
 c, err := container.New(
 	t,
 	container.Border(linestyle.Light),
@@ -254,23 +292,34 @@ c, err := container.New(
 					container.PlaceWidget(bc),
 				),
 				container.Right(
+					container.SplitVertical(
+						container.Left(
 					//Pie chart goes here
 					container.Border(linestyle.Light),
 					container.BorderTitle("Total CPU usage"),
 					container.PlaceWidget(overallusage),
+						),
+						container.Right(
+							container.SplitHorizontal(
+								container.Top(
+									container.PlaceWidget(changecolorB),
+								),
+								container.Bottom(
+									container.PlaceWidget(resetcolorB),
+								),
+							),
+						),
+					),
 				),
 			),
 		),
 		container.Bottom(
 			container.SplitVertical(
-				container.Left(
-					container.Border(linestyle.Light),
-					container.BorderTitle("Options"),
-					container.SplitVertical(
-						container.Left(container.PlaceWidget(changecolorB)),
-						container.Right(container.PlaceWidget(resetcolorB)),
-					),
-				),container.Right(
+                container.Left(
+                    container.Border(linestyle.Light),
+                    container.BorderTitle("CPU Line Graph"),
+                    container.PlaceWidget(lc),
+                ),container.Right(
 					//Memory stuff go here
 					container.Border(linestyle.Light),
 					container.BorderTitle("RAM Usage information | Total RAM detected : "+strconv.FormatFloat(globals.Mem_total,'g',5,64)+" GiB"),
