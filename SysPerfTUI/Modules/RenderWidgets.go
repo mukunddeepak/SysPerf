@@ -3,9 +3,10 @@ package modules
 import (
 	"SysPerfTUI/globals"
 	"context"
-	"math/rand"
+	//"math/rand"
 	"strconv"
 	"time"
+    "math"
 
 	"github.com/mum4k/termdash"
 	"github.com/mum4k/termdash/cell"
@@ -14,9 +15,10 @@ import (
 	"github.com/mum4k/termdash/terminal/tcell"
 	"github.com/mum4k/termdash/terminal/terminalapi"
 	"github.com/mum4k/termdash/widgets/barchart"
-	"github.com/mum4k/termdash/widgets/button"
+	//"github.com/mum4k/termdash/widgets/button"
 	"github.com/mum4k/termdash/widgets/donut"
 	"github.com/mum4k/termdash/widgets/gauge"
+	"github.com/mum4k/termdash/widgets/linechart"
 )
 func playGauge(ctx context.Context, g *gauge.Gauge, delay time.Duration, percent int32) {
 	progress := int(percent)
@@ -80,6 +82,45 @@ func playBarChart(ctx context.Context, bc *barchart.BarChart, delay time.Duratio
 	}
 }
 
+//TO DELETE
+func sineInputs() []float64 {
+	var res []float64
+
+	for i := 0; i < 200; i++ {
+		v := math.Sin(float64(i) / 100 * math.Pi)
+		res = append(res, v)
+	}
+	return res
+}
+func playLineChart(ctx context.Context, lc *linechart.LineChart, delay time.Duration) {
+	inputs := sineInputs() // Add Dataset here.
+	ticker := time.NewTicker(delay) //Using timeseries here
+	defer ticker.Stop()
+	for i := 0; ; {
+		select {
+		case <-ticker.C:
+			i = (i + 1) % len(inputs)
+			rotated := append(inputs[i:], inputs[:i]...)
+			if err := lc.Series("first", rotated,
+				linechart.SeriesCellOpts(cell.FgColor(cell.ColorNumber(33))),
+				linechart.SeriesXLabels(map[int]string{
+					0: "zero",
+				}),
+			); err != nil {
+				panic(err)
+			}
+
+			i2 := (i + 100) % len(inputs)
+			rotated2 := append(inputs[i2:], inputs[:i2]...)
+			if err := lc.Series("second", rotated2, linechart.SeriesCellOpts(cell.FgColor(cell.ColorWhite))); err != nil {
+				panic(err)
+			}
+
+		case <-ctx.Done():
+			return
+		}
+	}
+}
 func RenderWidgets() {
 	tcell.ColorMode(terminalapi.ColorMode256)
 	t, err := tcell.New()
@@ -160,34 +201,42 @@ func RenderWidgets() {
 	}
 	go playGauge(ctx, free_ram, time.Second, globals.Mem_free_percentage)
 
-	changecolorB, err := button.New("(c)olor", func() error {
-		for i := int32(0); i < globals.InitCpuData; i++ {
-			bars[i] = cell.ColorNumber(rand.Intn(256))
-			bars_text_color[i] = cell.ColorNumber(rand.Intn(256))
-		}
-		//[TODO]Change color of donut and gagues too, I dont seem to be able to do it!
-		return nil
-	},
-	button.FillColor(cell.ColorNumber(220)),
-	button.GlobalKey('c'),
-)
+   /* changecolorB, err := button.New("(c)olor", func() error {*/
+		/*for i := int32(0); i < globals.InitCpuData; i++ {*/
+			/*bars[i] = cell.ColorNumber(rand.Intn(256))*/
+			/*bars_text_color[i] = cell.ColorNumber(rand.Intn(256))*/
+		/*}*/
+		/*//[TODO]Change color of donut and gagues too, I dont seem to be able to do it!*/
+		/*return nil*/
+	/*},*/
+	/*button.FillColor(cell.ColorNumber(220)),*/
+	/*button.GlobalKey('c'),*/
+/*)*/
 
-resetcolorB, err := button.New("(r)eset", func() error {
-	for i := int32(0); i < globals.InitCpuData; i++ {
-		bars[i] = cell.ColorAqua
-		bars_text_color[i] = cell.ColorRed
-	}
-	return nil
-},
-button.FillColor(cell.ColorNumber(220)),
-button.GlobalKey('r'),
-)
+/*resetcolorB, err := button.New("(r)eset", func() error {*/
+	/*for i := int32(0); i < globals.InitCpuData; i++ {*/
+		/*bars[i] = cell.ColorAqua*/
+		/*bars_text_color[i] = cell.ColorRed*/
+	/*}*/
+	/*return nil*/
+/*},*/
+/*button.FillColor(cell.ColorNumber(220)),*/
+/*button.GlobalKey('r'),*/
+/*)*/
 if err != nil {
 	panic(err)
 }
 go playBarChart(ctx, bc, 1*time.Second)
-
-
+const redrawInterval = 250 * time.Millisecond
+lc, err := linechart.New(
+    linechart.AxesCellOpts(cell.FgColor(cell.ColorRed)),
+    linechart.YLabelCellOpts(cell.FgColor(cell.ColorGreen)),
+    linechart.XLabelCellOpts(cell.FgColor(cell.ColorCyan)),
+)
+if err != nil{
+    panic(err)
+}
+go playLineChart(ctx, lc, redrawInterval/3)
 c, err := container.New(
 	t,
 	container.Border(linestyle.Light),
@@ -210,14 +259,11 @@ c, err := container.New(
 		),
 		container.Bottom(
 			container.SplitVertical(
-				container.Left(
-					container.Border(linestyle.Light),
-					container.BorderTitle("Options"),
-					container.SplitVertical(
-						container.Left(container.PlaceWidget(changecolorB)),
-						container.Right(container.PlaceWidget(resetcolorB)),
-					),
-				),container.Right(
+                container.Left(
+                    container.Border(linestyle.Light),
+                    container.BorderTitle("CPU Line Graph"),
+                    container.PlaceWidget(lc),
+                ),container.Right(
 					//Memory stuff go here
 					container.Border(linestyle.Light),
 					container.BorderTitle("RAM Usage information | Total RAM detected : "+strconv.FormatFloat(globals.Mem_total,'g',5,64)+" GiB"),
