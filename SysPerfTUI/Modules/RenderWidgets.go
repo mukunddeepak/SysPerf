@@ -17,6 +17,7 @@ import (
 	"github.com/mum4k/termdash/widgets/button"
 	"github.com/mum4k/termdash/widgets/donut"
 	"github.com/mum4k/termdash/widgets/gauge"
+	"fmt"
 )
 func playGauge(ctx context.Context, g *gauge.Gauge, delay time.Duration, percent int32) {
 	progress := int(percent)
@@ -86,6 +87,25 @@ func RenderWidgets() {
 	if err != nil {
 		panic(err)
 	}
+	printed_once := false
+	init_value_x := t.Size().X
+	init_value_y := t.Size().Y
+	for{
+		if(t.Size().X<158 || t.Size().Y<39){
+			if !printed_once{
+				fmt.Println("Please reduce terminal size")
+				printed_once = true
+			}
+		}else if t.Size().X!=init_value_x || t.Size().Y!=init_value_y{
+			fmt.Print("Please reduce terminal size further!")
+			init_value_y = t.Size().Y
+			init_value_x = t.Size().X
+		}else{
+			fmt.Println("Sized!")
+			break
+		}
+	}
+	time.Sleep(time.Second)
 	defer t.Close()
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -102,7 +122,7 @@ func RenderWidgets() {
 		barchart.BarColors(bars),
 		barchart.ValueColors(bars_text_color),
 		barchart.ShowValues(),
-		barchart.BarWidth(6),
+		barchart.BarWidth(5),
 		barchart.Labels(bars_text),
 	)
 	if err != nil {
@@ -118,11 +138,12 @@ func RenderWidgets() {
 		panic(err)
 	}
 	go playDonut(ctx, overallusage, time.Second)
-	mem_color := []cell.Color{cell.ColorRed}
+	mem_color := make([]cell.Color, 1)
+	mem_color[0] = cell.ColorRed
 
 	used_ram, err := gauge.New(
 		gauge.Height(1),
-		gauge.Color(mem_color[0]),
+		gauge.Color(cell.ColorAqua),
 		gauge.BorderTitle("Used RAM"),
 	)
 	if err != nil {
@@ -166,6 +187,7 @@ func RenderWidgets() {
 			bars_text_color[i] = cell.ColorNumber(rand.Intn(256))
 		}
 		//[TODO]Change color of donut and gagues too, I dont seem to be able to do it!
+
 		return nil
 	},
 	button.FillColor(cell.ColorNumber(220)),
