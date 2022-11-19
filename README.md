@@ -10,6 +10,10 @@ A modern-ish looking system monitor that uses what we would call the "next-gen" 
 - Uses unsafe rust :( 
 - Over complicated for a simple task, but tbf this project was done only to follow the guuidelines of SE as part of the course in our Univerity!
 
+## How to use : 
+> Note : Needs Rust and go toochains installed before hand
+![image](./3.png)
+
 ## Screenshots :
 ![image](./1.png)
 ![image](./2.png)
