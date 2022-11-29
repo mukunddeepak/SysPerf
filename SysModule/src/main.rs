@@ -21,7 +21,6 @@ use tonic::transport::Server;
 pub mod protobuf {
     tonic::include_proto!("data.protobuf");
 }
-
 use protobuf::CpuUsage as CpuUsageProtobuf;
 use protobuf::MemUsage as MemUsageProtobuf;
 use protobuf::InitData as InitDataProtobuf;
