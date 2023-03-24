@@ -194,23 +194,23 @@ impl MultiCpuUsage {
             }
         };
         let mut usage = self.calculate_recent_usage(needed_cpu_id) as f32;
-        if usage.is_nan(){
+        if usage.is_nan() {
             usage = 0.0
         }
         CpuUsageProtobuf {
             cpu_id: String::from(needed_cpu_id.to_string()),
-            cpu_usage: usage
+            cpu_usage: usage,
         }
     }
-    pub fn convert_to_detail_protobuf(&self) -> crate::InitDataProtobuf{
+    pub fn convert_to_detail_protobuf(&self) -> crate::InitDataProtobuf {
         let mut largest = 0;
-        for i in self.irq_usage.keys(){
-            if *i>largest{
+        for i in self.irq_usage.keys() {
+            if *i > largest {
                 largest = *i
             }
         }
-        crate::InitDataProtobuf{
-            number_of_cpu : largest
+        crate::InitDataProtobuf {
+            number_of_cpu: largest,
         }
     }
 }

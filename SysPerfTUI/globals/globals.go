@@ -1,8 +1,9 @@
 package globals
 
 import (
-	"google.golang.org/grpc"
 	"sync"
+
+	"google.golang.org/grpc"
 )
 
 var Mainwaitgroup *sync.WaitGroup
@@ -24,3 +25,7 @@ var Mem_cached_percentage int32
 
 var Mem_free float64
 var Mem_free_percentage int32
+
+var Charge_full_design int32
+var Charge_full int32
+var Charge_now int32

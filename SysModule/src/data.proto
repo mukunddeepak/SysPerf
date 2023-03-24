@@ -13,6 +13,11 @@ message MemUsage {
   uint32 Mem_Buffer = 4;
   uint32 Mem_Cached = 5;
 }
+message BatUsage {
+  uint32 Charge_Full_Design = 1;
+  uint32 Charge_Full = 2;
+  uint32 Charge_Now = 3;
+}
 
 message InitData {
   int32 number_of_cpu = 1;
@@ -21,6 +26,7 @@ message InitData {
 
 message EmptyReq {}
 message MemUsageRequest { float prev_mem_usage = 1; }
+message BatUsageRequest { float prev_bat_usage = 1; }
 message CpuUsageRequest { string needed_cpu_usage = 1; }
 
 service FetchData {
@@ -30,3 +36,4 @@ service FetchData {
 }
 
 service FetchDataMem { rpc FetchMemUsage(MemUsageRequest) returns (MemUsage); }
+service FetchDataBat{ rpc FetchBatUsage(BatUsageRequest) returns (BatUsage); }
