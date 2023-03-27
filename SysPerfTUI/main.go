@@ -27,5 +27,6 @@ func main() {
 	go modules.RollingCpuUpdate()
 	modules.MainCpuService()
 	modules.MainMemService()
+	modules.MainBatService()
 	modules.RenderWidgets()
 }
