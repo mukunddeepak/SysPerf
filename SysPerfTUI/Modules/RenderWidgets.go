@@ -3,11 +3,11 @@ package modules
 import (
 	"SysPerfTUI/globals"
 	"context"
+
 	//"math/rand"
+	"math/rand"
 	"strconv"
 	"time"
-  "math"
-  "math/rand"
 
 	"fmt"
 
@@ -18,13 +18,31 @@ import (
 	"github.com/mum4k/termdash/terminal/tcell"
 	"github.com/mum4k/termdash/terminal/terminalapi"
 	"github.com/mum4k/termdash/widgets/barchart"
+	"github.com/mum4k/termdash/widgets/button"
 	"github.com/mum4k/termdash/widgets/donut"
 	"github.com/mum4k/termdash/widgets/gauge"
-	"github.com/mum4k/termdash/widgets/text"
 	"github.com/mum4k/termdash/widgets/linechart"
-	"github.com/mum4k/termdash/widgets/button"
+	"github.com/mum4k/termdash/widgets/text"
 )
+
 func playGauge(ctx context.Context, g *gauge.Gauge, delay time.Duration, percent *int32) {
+	progress := int(*percent)
+
+	ticker := time.NewTicker(delay)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ticker.C:
+			if err := g.Percent(progress); err != nil {
+				panic(err)
+			}
+			progress = int(*percent)
+		case <-ctx.Done():
+			return
+		}
+	}
+}
+func playGaugebat(ctx context.Context, g *gauge.Gauge, delay time.Duration, percent *float64) {
 	progress := int(*percent)
 
 	ticker := time.NewTicker(delay)
@@ -85,34 +103,33 @@ func playBarChart(ctx context.Context, bc *barchart.BarChart, delay time.Duratio
 		}
 	}
 }
-func writeText(widget *text.Text, time_dur time.Duration, variable *float64){
-	for{
+func writeText(widget *text.Text, time_dur time.Duration, variable *float64) {
+	for {
 		widget.Reset()
-		widget.Write(strconv.FormatFloat(*variable,'g',5,64)+" GiB")
+		widget.Write(strconv.FormatFloat(*variable, 'g', 5, 64) + " GiB")
 		time.Sleep(time_dur)
 	}
 }
 
-//TO DELETE
-func sineInputs() []float64 {
-	var res []float64
+// func writeTextBat(widget *text.Text, time_dur time.Duration, variable *float64) {
+// 	for {
+// 		widget.Reset()
+// 		widget.Write(strconv.FormatFloat(*variable, 'g', 5, 64))
+// 		time.Sleep(time_dur)
+// 	}
+// }
 
-	for i := 0; i < 200; i++ {
-		v := math.Sin(float64(i) / 100 * math.Pi)
-		res = append(res, v)
-	}
-	return res
-}
+//TO DELETE
+
 func playLineChart(ctx context.Context, lc *linechart.LineChart, delay time.Duration) {
 	ticker := time.NewTicker(delay) //Using timeseries here
 	defer ticker.Stop()
-	for{
+	for {
 		select {
 		case <-ticker.C:
-			if err := lc.Series("first", globals.CpuGraphBuf,linechart.SeriesCellOpts(cell.FgColor(cell.ColorNumber(33)))); err != nil {
+			if err := lc.Series("first", globals.CpuGraphBuf, linechart.SeriesCellOpts(cell.FgColor(cell.ColorNumber(33)))); err != nil {
 				panic(err)
 			}
-
 
 		case <-ctx.Done():
 			return
@@ -128,17 +145,17 @@ func RenderWidgets() {
 	printed_once := false
 	init_value_x := t.Size().X
 	init_value_y := t.Size().Y
-	for{
-		if(t.Size().X<158 || t.Size().Y<39){
-			if !printed_once{
+	for {
+		if t.Size().X < 158 || t.Size().Y < 39 {
+			if !printed_once {
 				fmt.Println("Please reduce terminal size")
 				printed_once = true
 			}
-		}else if t.Size().X!=init_value_x || t.Size().Y!=init_value_y{
+		} else if t.Size().X != init_value_x || t.Size().Y != init_value_y {
 			fmt.Print("Please reduce terminal size further!")
 			init_value_y = t.Size().Y
 			init_value_x = t.Size().X
-		}else{
+		} else {
 			fmt.Println("Sized!")
 			break
 		}
@@ -179,14 +196,45 @@ func RenderWidgets() {
 	mem_color := make([]cell.Color, 1)
 	mem_color[0] = cell.ColorRed
 
+	// bat_health_text, err := text.New()
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// go writeTextBat(bat_health_text, time.Second, &globals.Bat_health)
+
+	// bat_level, err := text.New()
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// go writeTextBat(bat_level, time.Second, &globals.Bat_level)
+
+	bat_health, err := gauge.New(
+		gauge.Height(3),
+		gauge.BorderTitle("Bat_Health"),
+	)
+	if err != nil {
+		panic(err)
+	}
+	go playGaugebat(ctx, bat_health, time.Second, &globals.Bat_health)
+
+	bat_level, err := gauge.New(
+		gauge.Height(3),
+		gauge.BorderTitle("Bat_Level"),
+	)
+	if err != nil {
+		panic(err)
+	}
+	go playGaugebat(ctx, bat_level, time.Second, &globals.Bat_level)
+
 	used_ram, err := gauge.New(
-		gauge.Height(4),
+		gauge.Height(3),
 		gauge.Color(mem_color[0]),
 		gauge.BorderTitle("Used RAM"),
 	)
 	if err != nil {
 		panic(err)
 	}
+
 	go playGauge(ctx, used_ram, time.Second, &globals.Mem_used_percent)
 
 	available_ram, err := gauge.New(
@@ -219,7 +267,7 @@ func RenderWidgets() {
 	}
 	go playGauge(ctx, free_ram, time.Second, &globals.Mem_free_percentage)
 
-   changecolorB, err := button.New("(c)olor", func() error {
+	changecolorB, err := button.New("(c)olor", func() error {
 		for i := int32(0); i < globals.InitCpuData; i++ {
 			bars[i] = cell.ColorNumber(rand.Intn(256))
 			bars_text_color[i] = cell.ColorNumber(rand.Intn(256))
@@ -227,179 +275,198 @@ func RenderWidgets() {
 		//[TODO]Change color of donut and gagues too, I dont seem to be able to do it!
 		return nil
 	},
-	button.FillColor(cell.ColorNumber(220)),
-	button.GlobalKey('c'),
-)
+		button.FillColor(cell.ColorNumber(220)),
+		button.GlobalKey('c'),
+	)
 
-resetcolorB, err := button.New("(r)eset", func() error {
-	for i := int32(0); i < globals.InitCpuData; i++ {
-		bars[i] = cell.ColorAqua
-		bars_text_color[i] = cell.ColorRed
+	resetcolorB, err := button.New("(r)eset", func() error {
+		for i := int32(0); i < globals.InitCpuData; i++ {
+			bars[i] = cell.ColorAqua
+			bars_text_color[i] = cell.ColorRed
+		}
+		return nil
+	},
+		button.FillColor(cell.ColorNumber(220)),
+		button.GlobalKey('r'),
+	)
+	if err != nil {
+		panic(err)
 	}
-	return nil
-},
-button.FillColor(cell.ColorNumber(220)),
-button.GlobalKey('r'),
-)
-if err != nil {
-	panic(err)
-}
-go playBarChart(ctx, bc, 1*time.Second)
+	go playBarChart(ctx, bc, 1*time.Second)
 
-used_ram_text, err := text.New()
+	used_ram_text, err := text.New()
 	if err != nil {
 		panic(err)
 	}
 	go writeText(used_ram_text, time.Second, &globals.Mem_used)
 
-available_ram_text, err := text.New()
+	available_ram_text, err := text.New()
 	if err != nil {
 		panic(err)
 	}
 	go writeText(available_ram_text, time.Second, &globals.Mem_available)
 
-cached_ram_text, err := text.New()
+	cached_ram_text, err := text.New()
 	if err != nil {
 		panic(err)
 	}
 	go writeText(cached_ram_text, time.Second, &globals.Mem_cached)
 
-free_ram_text, err := text.New()
+	free_ram_text, err := text.New()
 	if err != nil {
 		panic(err)
 	}
 	go writeText(free_ram_text, time.Second, &globals.Mem_free)
-const redrawInterval = time.Second
-lc, err := linechart.New(
-    linechart.AxesCellOpts(cell.FgColor(cell.ColorRed)),
-    linechart.YLabelCellOpts(cell.FgColor(cell.ColorAqua)),
-    linechart.XLabelCellOpts(cell.FgColor(cell.ColorAqua)),
-)
-if err != nil{
-    panic(err)
-}
-go playLineChart(ctx, lc, redrawInterval)
-c, err := container.New(
-	t,
-	container.Border(linestyle.Light),
-	container.BorderTitle("PRESS Q TO QUIT"),
-	container.SplitHorizontal(
-		container.Top(
-			container.SplitVertical(
-				container.Left(
-					container.Border(linestyle.Light),
-					container.BorderTitle("CPU Per core usage"),
-					container.PlaceWidget(bc),
-				),
-				container.Right(
-					container.SplitVertical(
-						container.Left(
-					//Pie chart goes here
-					container.Border(linestyle.Light),
-					container.BorderTitle("Total CPU usage"),
-					container.PlaceWidget(overallusage),
-						),
-						container.Right(
-							container.SplitHorizontal(
-								container.Top(
-									container.PlaceWidget(changecolorB),
-								),
-								container.Bottom(
-									container.PlaceWidget(resetcolorB),
-								),
-							),
-						),
-					),
-				),
-			),
-		),
-		container.Bottom(
-			container.SplitVertical(
-                container.Left(
-                    container.Border(linestyle.Light),
-                    container.BorderTitle("CPU Line Graph"),
-                    container.PlaceWidget(lc),
-                ),container.Right(
-					//Memory stuff go here
-					container.Border(linestyle.Light),
-					container.BorderTitle("RAM Usage information | Total RAM detected : "+strconv.FormatFloat(globals.Mem_total,'g',5,64)+" GiB"),
-					container.SplitHorizontal(
-						container.Top(
-							container.SplitVertical(
-								container.Left(
-									container.Border(linestyle.Light),
-									container.BorderTitle("Total Used RAM : "),
-									container.SplitHorizontal(
-										container.Top(
-											container.PlaceWidget(used_ram),
-										),
-										container.Bottom(
-											container.PlaceWidget(used_ram_text),
-										),
-									),
-								),
-								container.Right(
-									container.Border(linestyle.Light),
-									container.BorderTitle("Total Available RAM : "),
-									container.SplitHorizontal(
-										container.Top(
-									container.PlaceWidget(available_ram),
-
-										),
-										container.Bottom(
-											container.PlaceWidget(available_ram_text),
-										),
-									),
-								),
-							),
-						),
-						container.Bottom(
-							container.SplitVertical(
-								container.Left(
-									container.Border(linestyle.Light),
-									container.BorderTitle("Total Cached RAM : "),
-									container.SplitHorizontal(
-										container.Top(
-									container.PlaceWidget(cached_ram),
-
-										),
-										container.Bottom(
-											container.PlaceWidget(cached_ram_text),
-										),
-									),
-								),
-								container.Right(
-									container.Border(linestyle.Light),
-									container.BorderTitle("Total Free RAM : "),
-									container.SplitHorizontal(
-										container.Top(
-									container.PlaceWidget(free_ram),
-										),
-										container.Bottom(
-											container.PlaceWidget(free_ram_text),
-										),
-									),
-								),
-							),
-						),
-					),
-				),
-			),
-		),
-	),
-)
-if err != nil {
-	panic(err)
-}
-
-quitter := func(k *terminalapi.Keyboard) {
-	if k.Key == 'q' || k.Key == 'Q' {
-		cancel()
-		return
+	const redrawInterval = time.Second
+	lc, err := linechart.New(
+		linechart.AxesCellOpts(cell.FgColor(cell.ColorRed)),
+		linechart.YLabelCellOpts(cell.FgColor(cell.ColorAqua)),
+		linechart.XLabelCellOpts(cell.FgColor(cell.ColorAqua)),
+	)
+	if err != nil {
+		panic(err)
 	}
-}
+	go playLineChart(ctx, lc, redrawInterval)
+	c, err := container.New(
+		t,
+		container.Border(linestyle.Light),
+		container.BorderTitle("PRESS Q TO QUIT"),
+		container.SplitHorizontal(
+			container.Top(
+				container.SplitVertical(
+					container.Left(
+						container.Border(linestyle.Light),
+						container.BorderTitle("CPU Per core usage"),
+						container.PlaceWidget(bc),
+					),
+					container.Right(
+						container.SplitVertical(
+							container.Left(
+								//Pie chart goes here
+								container.Border(linestyle.Light),
+								container.BorderTitle("Total CPU usage"),
+								container.PlaceWidget(overallusage),
+							),
+							container.Right(
+								container.SplitHorizontal(
+									container.Top(
 
-if err := termdash.Run(ctx, t, c, termdash.KeyboardSubscriber(quitter)); err != nil {
-	panic(err)
-}
+										container.SplitVertical(
+											container.Left(
+												container.PlaceWidget(changecolorB),
+											),
+											container.Right(
+												container.PlaceWidget(resetcolorB),
+											),
+										),
+									),
+									container.Bottom(
+										container.Border(linestyle.Light),
+										container.BorderTitle("Battery Information"),
+										container.SplitVertical(
+											container.Left(
+												container.Border(linestyle.Light),
+												container.BorderTitle("Battery Health"),
+												container.PlaceWidget(bat_health),
+											),
+											container.Right(
+												container.Border(linestyle.Light),
+												container.BorderTitle("Battery Level"),
+												container.PlaceWidget(bat_level),
+											),
+										),
+									),
+								),
+							),
+						),
+					),
+				),
+			),
+			container.Bottom(
+				container.SplitVertical(
+					container.Left(
+						container.Border(linestyle.Light),
+						container.BorderTitle("CPU Line Graph"),
+						container.PlaceWidget(lc),
+					), container.Right(
+						//Memory stuff go here
+						container.Border(linestyle.Light),
+						container.BorderTitle("RAM Usage information | Total RAM detected : "+strconv.FormatFloat(globals.Mem_total, 'g', 5, 64)+" GiB"),
+						container.SplitHorizontal(
+							container.Top(
+								container.SplitVertical(
+									container.Left(
+										container.Border(linestyle.Light),
+										container.BorderTitle("Total Used RAM : "),
+										container.SplitHorizontal(
+											container.Top(
+												container.PlaceWidget(used_ram),
+											),
+											container.Bottom(
+												container.PlaceWidget(used_ram_text),
+											),
+										),
+									),
+									container.Right(
+										container.Border(linestyle.Light),
+										container.BorderTitle("Total Available RAM : "),
+										container.SplitHorizontal(
+											container.Top(
+												container.PlaceWidget(available_ram),
+											),
+											container.Bottom(
+												container.PlaceWidget(available_ram_text),
+											),
+										),
+									),
+								),
+							),
+							container.Bottom(
+								container.SplitVertical(
+									container.Left(
+										container.Border(linestyle.Light),
+										container.BorderTitle("Total Cached RAM : "),
+										container.SplitHorizontal(
+											container.Top(
+												container.PlaceWidget(cached_ram),
+											),
+											container.Bottom(
+												container.PlaceWidget(cached_ram_text),
+											),
+										),
+									),
+									container.Right(
+										container.Border(linestyle.Light),
+										container.BorderTitle("Total Free RAM : "),
+										container.SplitHorizontal(
+											container.Top(
+												container.PlaceWidget(free_ram),
+											),
+											container.Bottom(
+												container.PlaceWidget(free_ram_text),
+											),
+										),
+									),
+								),
+							),
+						),
+					),
+				),
+			),
+		),
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	quitter := func(k *terminalapi.Keyboard) {
+		if k.Key == 'q' || k.Key == 'Q' {
+			cancel()
+			return
+		}
+	}
+
+	if err := termdash.Run(ctx, t, c, termdash.KeyboardSubscriber(quitter)); err != nil {
+		panic(err)
+	}
 }
