@@ -29,3 +29,6 @@ var Mem_free_percentage int32
 var Charge_full_design int32
 var Charge_full int32
 var Charge_now int32
+
+var Bat_level float64
+var Bat_health float64
