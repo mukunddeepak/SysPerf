@@ -56,15 +56,31 @@ pub async fn main_bat_stat_handler(statefull_bat_usage: &mut BatUsage) {
         let mut lines: Vec<&str> = batinfo.split("\n").into_iter().collect();
         let mut temp_vec: Vec<u32> = Vec::new();
         // println!("{:?}", lines);
+        let checker = lines[4].chars().position(|c| c == '=').unwrap() + 1;
+        let power_model = lines[4].get(checker..).unwrap();
 
-        for i in 9..12 {
-            let pos1 = lines[i].chars().position(|c| c == '=').unwrap() + 1;
-            let finalvalue = lines[i].get(pos1..).unwrap();
-            let line_val = finalvalue.trim().parse::<u32>().unwrap();
-            temp_vec.push(line_val);
-            // println!("{:?}", temp_vec);
+        // println!("{:?}", power_model);
+
+        if (power_model == "Li-poly") {
+            for i in 9..12 {
+                let pos1 = lines[i].chars().position(|c| c == '=').unwrap() + 1;
+                let finalvalue = lines[i].get(pos1..).unwrap();
+                let line_val = finalvalue.trim().parse::<u32>().unwrap();
+                temp_vec.push(line_val);
+                // println!("{:?}", temp_vec);
+            }
+            statefull_bat_usage.update_values(temp_vec);
+            thread::sleep(time::Duration::from_millis(100));
+        } else {
+            for i in 8..11 {
+                let pos1 = lines[i].chars().position(|c| c == '=').unwrap() + 1;
+                let finalvalue = lines[i].get(pos1..).unwrap();
+                let line_val = finalvalue.trim().parse::<u32>().unwrap();
+                temp_vec.push(line_val);
+                // println!("{:?}", temp_vec);
+            }
+            statefull_bat_usage.update_values(temp_vec);
+            thread::sleep(time::Duration::from_millis(100));
         }
-        statefull_bat_usage.update_values(temp_vec);
-        thread::sleep(time::Duration::from_millis(100));
     }
 }
