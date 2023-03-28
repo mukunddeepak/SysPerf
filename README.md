@@ -17,7 +17,7 @@ A modern-ish looking system monitor that uses what we would call the "next-gen" 
 
 > Note : Needs Rust and go toochains installed before hand
 
-![image](./3.png)
+
 
 
 ![image](https://user-images.githubusercontent.com/72858215/227838766-70c9314f-7060-418e-924c-f8d85c10f859.png)
